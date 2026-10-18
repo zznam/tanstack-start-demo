@@ -49,7 +49,7 @@ export default function Footer() {
               <li>
                 <Link
                   to="/features/routing"
-                  search={{ category: 'all', sortBy: 'newest', page: 1 }}
+                  search={{ category: 'all', query: '', sortBy: 'newest' }}
                   className="hover:text-[var(--sea-ink)]"
                 >
                   Type-Safe Routing

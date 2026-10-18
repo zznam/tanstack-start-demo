@@ -1,10 +1,22 @@
 import { Link } from '@tanstack/react-router'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Menu, X, Sparkles, ExternalLink } from 'lucide-react'
 import ThemeToggle from './ThemeToggle'
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const menuButton = useRef<HTMLButtonElement>(null)
+  useEffect(() => {
+    if (!mobileMenuOpen) return
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setMobileMenuOpen(false)
+        menuButton.current?.focus()
+      }
+    }
+    document.addEventListener('keydown', onKeyDown)
+    return () => document.removeEventListener('keydown', onKeyDown)
+  }, [mobileMenuOpen])
 
   const navLinks = [
     { to: '/', label: 'Overview' },
@@ -16,11 +28,12 @@ export default function Header() {
     { to: '/features/streaming', label: 'Streaming' },
     { to: '/features/server-context', label: 'Server Context' },
     { to: '/features/agent-dx', label: 'Agent DX' },
-  ]
+    { to: '/about', label: 'About' },
+  ] as const
 
   return (
     <header className="sticky top-0 z-50 border-b border-[var(--line)] bg-[var(--header-bg)] px-4 backdrop-blur-lg">
-      <nav className="page-wrap flex items-center justify-between py-2.5 sm:py-3 gap-2">
+      <nav aria-label="Main navigation" className="page-wrap !max-w-[1600px] !w-full flex items-center justify-between py-2.5 sm:py-3 gap-2">
         {/* Brand */}
         <div className="flex items-center gap-3">
           <Link
@@ -36,12 +49,12 @@ export default function Header() {
         </div>
 
         {/* Desktop Navigation */}
-        <div className="hidden xl:flex items-center gap-1 text-xs font-semibold">
+        <div className="hidden 2xl:flex items-center gap-1 text-xs font-semibold">
           {navLinks.map((item) => (
             <Link
               key={item.to}
-              to={item.to as any}
-              search={item.to === '/features/routing' ? ({ category: 'all', sortBy: 'newest', page: 1 } as any) : undefined}
+              to={item.to}
+              search={item.to === '/features/routing' ? { category: 'all', query: '', sortBy: 'newest' } : undefined}
               className="px-2.5 py-1.5 rounded-lg text-[var(--sea-ink-soft)] hover:text-[var(--sea-ink)] hover:bg-[var(--chip-bg)] transition no-underline"
               activeProps={{
                 className: 'px-2.5 py-1.5 rounded-lg font-bold text-[var(--sea-ink)] bg-[var(--surface-strong)] shadow-xs border border-[var(--line)]',
@@ -51,54 +64,6 @@ export default function Header() {
               {item.label}
             </Link>
           ))}
-        </div>
-
-        {/* Medium Screen Dropdown or Quick Nav */}
-        <div className="hidden lg:flex xl:hidden items-center gap-1 text-xs font-semibold">
-          <Link
-            to="/"
-            className="px-2 py-1 rounded text-[var(--sea-ink-soft)] hover:text-[var(--sea-ink)]"
-            activeProps={{ className: 'font-bold text-[var(--sea-ink)] underline' }}
-            activeOptions={{ exact: true }}
-          >
-            Home
-          </Link>
-          <Link
-            to="/features/routing"
-            search={{ category: 'all', sortBy: 'newest', page: 1 }}
-            className="px-2 py-1 rounded text-[var(--sea-ink-soft)] hover:text-[var(--sea-ink)]"
-            activeProps={{ className: 'font-bold text-[var(--sea-ink)] underline' }}
-          >
-            Routing
-          </Link>
-          <Link
-            to="/features/server-functions"
-            className="px-2 py-1 rounded text-[var(--sea-ink-soft)] hover:text-[var(--sea-ink)]"
-            activeProps={{ className: 'font-bold text-[var(--sea-ink)] underline' }}
-          >
-            ServerFn
-          </Link>
-          <Link
-            to="/features/middleware"
-            className="px-2 py-1 rounded text-[var(--sea-ink-soft)] hover:text-[var(--sea-ink)]"
-            activeProps={{ className: 'font-bold text-[var(--sea-ink)] underline' }}
-          >
-            Middleware
-          </Link>
-          <Link
-            to="/features/isomorphic"
-            className="px-2 py-1 rounded text-[var(--sea-ink-soft)] hover:text-[var(--sea-ink)]"
-            activeProps={{ className: 'font-bold text-[var(--sea-ink)] underline' }}
-          >
-            Isomorphic
-          </Link>
-          <Link
-            to="/features/streaming"
-            className="px-2 py-1 rounded text-[var(--sea-ink-soft)] hover:text-[var(--sea-ink)]"
-            activeProps={{ className: 'font-bold text-[var(--sea-ink)] underline' }}
-          >
-            Streaming
-          </Link>
         </div>
 
         {/* Actions */}
@@ -120,7 +85,10 @@ export default function Header() {
           <button
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="xl:hidden p-2 rounded-lg text-[var(--sea-ink-soft)] hover:bg-[var(--chip-bg)] transition"
+            className="2xl:hidden p-2 rounded-lg text-[var(--sea-ink-soft)] hover:bg-[var(--chip-bg)] transition"
+            ref={menuButton}
+            aria-controls="mobile-navigation"
+            aria-expanded={mobileMenuOpen}
             aria-label="Toggle navigation menu"
           >
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -130,13 +98,13 @@ export default function Header() {
 
       {/* Mobile Menu Dropdown */}
       {mobileMenuOpen && (
-        <div className="xl:hidden border-t border-[var(--line)] py-3 px-2 space-y-1">
+        <div id="mobile-navigation" className="2xl:hidden max-h-[70vh] overflow-y-auto border-t border-[var(--line)] py-3 px-2 space-y-1">
           <div className="grid grid-cols-2 gap-1.5">
             {navLinks.map((item) => (
               <Link
                 key={item.to}
-                to={item.to as any}
-                search={item.to === '/features/routing' ? ({ category: 'all', sortBy: 'newest', page: 1 } as any) : undefined}
+                to={item.to}
+                search={item.to === '/features/routing' ? { category: 'all', query: '', sortBy: 'newest' } : undefined}
                 onClick={() => setMobileMenuOpen(false)}
                 className="px-3 py-2 rounded-lg text-xs font-semibold text-[var(--sea-ink-soft)] hover:text-[var(--sea-ink)] hover:bg-[var(--chip-bg)] transition no-underline"
                 activeProps={{

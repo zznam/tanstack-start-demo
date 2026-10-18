@@ -54,12 +54,13 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body className="font-sans antialiased [overflow-wrap:anywhere] selection:bg-[rgba(79,184,178,0.24)] min-h-screen flex flex-col">
+        <a href="#main-content" className="skip-link">Skip to content</a>
         <Header />
-        <div className="flex-1">
+        <main id="main-content" tabIndex={-1} className="flex-1 min-w-0">
           {children}
-        </div>
+        </main>
         <Footer />
-        <TanStackDevtools
+        {import.meta.env.DEV && <TanStackDevtools
           config={{
             position: 'bottom-right',
           }}
@@ -69,7 +70,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
               render: <TanStackRouterDevtoolsPanel />,
             },
           ]}
-        />
+        />}
         <Scripts />
       </body>
     </html>

@@ -72,7 +72,7 @@ function ServerContextPage() {
     <div className="demo-page">
       {/* Title */}
       <div className="mb-8">
-        <div className="flex items-center gap-2 mb-2">
+        <div className="flex flex-wrap items-center gap-2 mb-2">
           <FeatureBadge type="nitro" />
           <span className="text-xs font-mono text-[var(--sea-ink-soft)]">
             @tanstack/react-start/server: getRequest & Nitro
@@ -123,7 +123,7 @@ function ServerContextPage() {
           <span className="text-xs font-semibold text-[var(--sea-ink)] mb-2 block">
             Inspectable HTTP Headers Captured:
           </span>
-          <pre className="p-3 rounded-lg bg-[var(--surface-strong)] border border-[var(--line)] text-[11px] font-mono text-[var(--sea-ink)] overflow-x-auto m-0">
+          <pre tabIndex={0} aria-label="Runtime context JSON" className="p-3 rounded-lg bg-[var(--surface-strong)] border border-[var(--line)] text-[11px] font-mono text-[var(--sea-ink)] overflow-x-auto m-0">
             {JSON.stringify(requestInfo.headersSubset, null, 2)}
           </pre>
         </div>
@@ -136,7 +136,7 @@ function ServerContextPage() {
           Choose Where Your Code Runs (Zero Vendor Lock-In)
         </h3>
         <p className="text-xs text-[var(--sea-ink-soft)] mb-5">
-          TanStack Start compiles on Vite + Nitro. Switching hosting providers requires zero code changes to your routes or server functions.
+          This project runs on Node with Nitro. Other providers require adapter configuration and runtime compatibility checks; these cards describe hosting options.
         </p>
 
         {/* Adapter buttons */}
@@ -146,6 +146,7 @@ function ServerContextPage() {
               key={a.id}
               type="button"
               onClick={() => setSelectedAdapter(a.id)}
+              aria-pressed={selectedAdapter === a.id}
               className={`p-3 rounded-xl border text-center transition ${
                 selectedAdapter === a.id
                   ? 'border-[var(--lagoon-deep)] bg-[var(--surface-strong)] shadow-xs ring-1 ring-[var(--lagoon-deep)] font-bold text-[var(--sea-ink)]'
@@ -186,7 +187,7 @@ function ServerContextPage() {
           Server Request Utility APIs
         </h3>
         <p className="text-xs text-[var(--sea-ink-soft)] mb-3">
-          Access request cookies, headers, and set status codes anywhere in your server functions:
+          Access request cookies and headers, and set status codes inside server functions. Hosting examples below require provider-specific setup and are not active deployment configurations:
         </p>
         <CodeBlock
           code={`import { createServerFn } from '@tanstack/react-start'

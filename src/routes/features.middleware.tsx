@@ -8,6 +8,7 @@ import {
   Server,
   Layers,
 } from 'lucide-react'
+import type { TraceContext } from '../utils/middleware'
 import { executeTraceCall } from '../utils/serverFns'
 import { FeatureBadge } from '../components/FeatureBadge'
 import { CodeBlock } from '../components/CodeBlock'
@@ -16,39 +17,42 @@ export const Route = createFileRoute('/features/middleware')({
   component: MiddlewarePage,
 })
 
-interface TraceResult {
-  message: string
-  payloadNote: string
-  context: any
-  serverExecutionTimestamp: number
-}
+type TraceResult = Awaited<ReturnType<typeof executeTraceCall>>
 
 function MiddlewarePage() {
   const [note, setNote] = useState('Benchmark ping from client UI')
   const [isTracing, setIsTracing] = useState(false)
+  const [traceError, setTraceError] = useState<string | null>(null)
   const [traceResult, setTraceResult] = useState<TraceResult | null>(null)
 
   const handleRunTrace = async () => {
     setIsTracing(true)
+    setTraceError(null)
+    const started = performance.now()
     try {
       const response = await executeTraceCall({
         data: { payloadNote: note || 'Default payload' },
       })
-      setTraceResult(response)
-    } catch (err: any) {
-      alert(`Trace failed: ${err.message}`)
+      // RPC returns the handler payload, not the middleware context envelope.
+      setTraceResult({ ...response, context: {
+        ...response.context,
+        clientEndTime: Date.now(),
+        totalRoundtrip: Math.round(performance.now() - started),
+      } })
+    } catch (err) {
+      setTraceError(err instanceof Error ? err.message : 'Trace failed. Please try again.')
     } finally {
       setIsTracing(false)
     }
   }
 
-  const ctx = traceResult?.context ?? {}
+  const ctx: TraceContext = traceResult?.context ?? {}
 
   return (
     <div className="demo-page">
       {/* Title */}
       <div className="mb-8">
-        <div className="flex items-center gap-2 mb-2">
+        <div className="flex flex-wrap items-center gap-2 mb-2">
           <FeatureBadge type="middleware" />
           <span className="text-xs font-mono text-[var(--sea-ink-soft)]">
             @tanstack/react-start: createMiddleware
@@ -68,12 +72,14 @@ function MiddlewarePage() {
           Live Client ➔ Server ➔ Client Trace Dispatcher
         </h2>
         <p className="text-xs text-[var(--sea-ink-soft)] mb-5">
-          Send a request wrapped with <code>timingMiddleware</code> and <code>authSimulationMiddleware</code>. Observe how context propagates over the wire in both directions.
+          Send a request wrapped with <code>timingMiddleware</code> and <code>authSimulationMiddleware</code>. Observe how context propagates over the wire in both directions. The fixed token simulates an identity; it does not authenticate users. Clock deltas may include clock skew.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-3 items-center mb-4">
           <input
             type="text"
+            aria-label="Trace note"
+            maxLength={200}
             placeholder="Trace note or label..."
             value={note}
             onChange={(e) => setNote(e.target.value)}
@@ -90,6 +96,7 @@ function MiddlewarePage() {
           </button>
         </div>
 
+        {traceError && <p role="alert" className="demo-alert demo-alert-danger">{traceError}</p>}
         {/* Visual Lifecycle Waterfall Diagram */}
         {traceResult ? (
           <div className="mt-6 pt-6 border-t border-[var(--line)]">
@@ -111,7 +118,7 @@ function MiddlewarePage() {
                   Browser Outbound
                 </h4>
                 <div className="space-y-1 text-[11px] font-mono text-[var(--sea-ink-soft)]">
-                  <div>Request ID: <strong className="text-[var(--sea-ink)]">{ctx.requestId ?? 'req_active'}</strong></div>
+                  <div>Request ID: <strong className="text-[var(--sea-ink)]">{ctx.requestId ?? 'Unavailable'}</strong></div>
                   <div>Client Start: <strong className="text-[var(--sea-ink)]">{ctx.clientStartTime ? new Date(ctx.clientStartTime).toLocaleTimeString() : 'N/A'}</strong></div>
                   <div>Auth Token: <span className="text-emerald-600 font-semibold">Attached via sendContext</span></div>
                 </div>
@@ -129,10 +136,10 @@ function MiddlewarePage() {
                   Nitro SSR Server
                 </h4>
                 <div className="space-y-1 text-[11px] font-mono text-[var(--sea-ink-soft)]">
-                  <div>Transit to Server: <strong className="text-purple-700 dark:text-purple-300">{ctx.durationToServer ?? 0} ms</strong></div>
-                  <div>Server Processing: <strong className="text-purple-700 dark:text-purple-300">{ctx.serverProcessingTime ?? 20} ms</strong></div>
+                  <div>Clock delta to server: <strong className="text-purple-700 dark:text-purple-300">{ctx.durationToServer ?? 'Unavailable'} ms</strong></div>
+                  <div>Server Processing: <strong className="text-purple-700 dark:text-purple-300">{ctx.serverProcessingTime ?? 'Unavailable'} ms</strong></div>
                   <div>Server Runtime: <strong className="text-[var(--sea-ink)]">{ctx.serverPlatform} (Node {ctx.serverNodeVersion})</strong></div>
-                  <div>Auth Verified: <span className="text-emerald-600 font-semibold">{ctx.authenticatedUser?.role ?? 'architect'}</span></div>
+                  <div>Demo Identity: <span className="text-emerald-600 font-semibold">{ctx.authenticatedUser?.role ?? 'Unauthenticated'}</span></div>
                 </div>
               </div>
 
@@ -148,9 +155,9 @@ function MiddlewarePage() {
                   Browser Inbound
                 </h4>
                 <div className="space-y-1 text-[11px] font-mono text-[var(--sea-ink-soft)]">
-                  <div>Total Roundtrip: <strong className="text-emerald-700 dark:text-emerald-300">{ctx.totalRoundtrip ?? 0} ms</strong></div>
+                  <div>Total Roundtrip: <strong className="text-emerald-700 dark:text-emerald-300">{ctx.totalRoundtrip ?? 'Unavailable'} ms</strong></div>
                   <div>Client Complete: <strong className="text-[var(--sea-ink)]">{ctx.clientEndTime ? new Date(ctx.clientEndTime).toLocaleTimeString() : 'Done'}</strong></div>
-                  <div>User Session: <strong className="text-[var(--sea-ink)]">{ctx.authenticatedUser?.name ?? 'TanStack Explorer'}</strong></div>
+                  <div>User Session: <strong className="text-[var(--sea-ink)]">{ctx.authenticatedUser?.name ?? 'No demo session'}</strong></div>
                 </div>
               </div>
             </div>
@@ -160,7 +167,7 @@ function MiddlewarePage() {
               <div className="text-xs font-semibold text-[var(--sea-ink)] mb-2">
                 Unified Context Injected via Middleware:
               </div>
-              <pre className="p-3 rounded-lg border border-[var(--line)] bg-[var(--surface-strong)] text-[11px] font-mono text-[var(--sea-ink)] overflow-x-auto m-0">
+              <pre tabIndex={0} aria-label="Runtime context JSON" className="p-3 rounded-lg border border-[var(--line)] bg-[var(--surface-strong)] text-[11px] font-mono text-[var(--sea-ink)] overflow-x-auto m-0">
                 {JSON.stringify(ctx, null, 2)}
               </pre>
             </div>

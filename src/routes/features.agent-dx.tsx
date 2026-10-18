@@ -83,7 +83,7 @@ updateUserData({ data: { email: 'user@test.com', teamId: 'team_1' } })`,
     <div className="demo-page">
       {/* Title */}
       <div className="mb-8">
-        <div className="flex items-center gap-2 mb-2">
+        <div className="flex flex-wrap items-center gap-2 mb-2">
           <FeatureBadge type="agent-dx" />
           <span className="text-xs font-mono text-[var(--sea-ink-soft)]">
             TanStack Intent & Agentic Architecture
@@ -128,7 +128,7 @@ updateUserData({ data: { email: 'user@test.com', teamId: 'team_1' } })`,
         </div>
 
         <p className="text-xs text-[var(--sea-ink-soft)] leading-relaxed mb-4">
-          Knowing an API exists and knowing the best practices around it are very different things. TanStack ships skills right inside its npm packages. When you scaffolded this project with <code>--intent</code>, TanStack Intent wired up agent discovery files so Claude, Gemini, and Cursor can query framework skills dynamically on-demand:
+          Knowing an API exists and knowing the best practices around it are very different things. TanStack ships skills right inside its npm packages. TanStack Intent can wire up discovery files so coding agents can query package skills. This page illustrates that optional workflow; this checkout does not contain generated agent discovery files. Consult the Intent documentation for the installed CLI version.
         </p>
 
         <div className="p-3 rounded-xl bg-[var(--surface-strong)] border border-[var(--line)] text-xs font-mono space-y-2">
@@ -151,6 +151,7 @@ updateUserData({ data: { email: 'user@test.com', teamId: 'team_1' } })`,
             key={s.id}
             type="button"
             onClick={() => setSelectedScenario(s.id)}
+            aria-pressed={selectedScenario === s.id}
             className={`flex-1 min-w-[220px] p-4 rounded-xl border text-left transition ${
               selectedScenario === s.id
                 ? 'border-indigo-500 bg-[var(--surface-strong)] shadow-md ring-1 ring-indigo-500 text-[var(--sea-ink)] font-bold'

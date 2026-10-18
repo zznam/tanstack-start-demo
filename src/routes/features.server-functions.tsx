@@ -1,5 +1,5 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { useState } from 'react'
+import { createFileRoute, useRouter, Link } from '@tanstack/react-router'
+import { useEffect, useState } from 'react'
 import {
   PlusCircle,
   Send,
@@ -17,6 +17,7 @@ import {
 } from '../utils/serverFns'
 import { FeatureBadge } from '../components/FeatureBadge'
 import { CodeBlock } from '../components/CodeBlock'
+import { createPostSchema } from '../utils/postSchemas'
 import type { Post } from '../utils/postsData'
 
 export const Route = createFileRoute('/features/server-functions')({
@@ -30,6 +31,9 @@ export const Route = createFileRoute('/features/server-functions')({
 function ServerFunctionsPage() {
   const { initialPosts } = Route.useLoaderData()
   const [posts, setPosts] = useState<Post[]>(initialPosts)
+  const router = useRouter()
+  const [likingIds, setLikingIds] = useState<string[]>([])
+  useEffect(() => setPosts(initialPosts), [initialPosts])
 
   // Form State
   const [title, setTitle] = useState('')
@@ -47,8 +51,14 @@ function ServerFunctionsPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (isSubmitting) return
     setFormError(null)
     setFormSuccess(null)
+    const validated = createPostSchema.safeParse({ title, category, author: author.trim() || 'Anonymous Developer', excerpt, content })
+    if (!validated.success) {
+      setFormError(validated.error.issues.map((issue) => issue.message).join('. '))
+      return
+    }
     setIsSubmitting(true)
     const startTime = performance.now()
 
@@ -58,7 +68,7 @@ function ServerFunctionsPage() {
         data: {
           title,
           category,
-          author: author || 'Anonymous Developer',
+          author: author.trim() || 'Anonymous Developer',
           excerpt,
           content,
         },
@@ -68,20 +78,24 @@ function ServerFunctionsPage() {
       setLastRpcLatency(elapsed)
 
       if (response.success && response.post) {
-        setPosts([response.post, ...posts])
+        setPosts((prev) => [response.post, ...prev])
+        await router.invalidate()
         setFormSuccess(`Post "${response.post.title}" created via typed RPC in ${elapsed}ms!`)
         setTitle('')
         setExcerpt('')
         setContent('')
       }
-    } catch (err: any) {
-      setFormError(err.message || 'Validation or Server RPC error occurred')
+    } catch (err) {
+      setFormError(err instanceof Error ? err.message : 'Validation or Server RPC error occurred')
     } finally {
       setIsSubmitting(false)
     }
   }
 
   const handleLike = async (postId: string) => {
+    if (likingIds.includes(postId)) return
+    setLikingIds((ids) => [...ids, postId])
+    setFormError(null)
     const startTime = performance.now()
     try {
       const result = await toggleLikeMutation({ data: { id: postId } })
@@ -89,8 +103,11 @@ function ServerFunctionsPage() {
       setPosts((prev) =>
         prev.map((p) => (p.id === postId ? { ...p, likes: result.likes } : p)),
       )
-    } catch (err: any) {
-      alert(`Error toggling like: ${err.message}`)
+      await router.invalidate()
+    } catch (err) {
+      setFormError(err instanceof Error ? err.message : 'Could not like the post.')
+    } finally {
+      setLikingIds((ids) => ids.filter((id) => id !== postId))
     }
   }
 
@@ -99,10 +116,10 @@ function ServerFunctionsPage() {
     const startTime = performance.now()
     try {
       await triggerServerError()
-    } catch (err: any) {
+    } catch (err) {
       const elapsed = Math.round(performance.now() - startTime)
       setLastRpcLatency(elapsed)
-      setServerErrorCaught(`Caught typed error from createServerFn in ${elapsed}ms: "${err.message}"`)
+      setServerErrorCaught(`Caught typed error from createServerFn in ${elapsed}ms: "${err instanceof Error ? err.message : 'Server error'}"`)
     }
   }
 
@@ -110,7 +127,7 @@ function ServerFunctionsPage() {
     <div className="demo-page">
       {/* Title */}
       <div className="mb-8">
-        <div className="flex items-center gap-2 mb-2">
+        <div className="flex flex-wrap items-center gap-2 mb-2">
           <FeatureBadge type="server-fn" />
           <span className="text-xs font-mono text-[var(--sea-ink-soft)]">
             @tanstack/react-start: createServerFn
@@ -138,6 +155,7 @@ function ServerFunctionsPage() {
         </div>
       )}
 
+      <p className="demo-alert mb-6 text-sm">Demo data is shared in this server process, resets on restart, and keeps at most 100 posts. Avoid entering personal information.</p>
       {/* Main Grid: Interactive Mutation on left, Live Posts on right */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-10">
         {/* Left Column: Client Mutation Form */}
@@ -152,14 +170,14 @@ function ServerFunctionsPage() {
             </p>
 
             {formError && (
-              <div className="mb-4 p-3 rounded-xl border border-red-500/30 bg-red-500/10 text-red-700 dark:text-red-400 text-xs flex items-center gap-2">
+              <div role="alert" className="mb-4 p-3 rounded-xl border border-red-500/30 bg-red-500/10 text-red-700 dark:text-red-400 text-xs flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 shrink-0" />
                 <span>{formError}</span>
               </div>
             )}
 
             {formSuccess && (
-              <div className="mb-4 p-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 text-xs flex items-center gap-2">
+              <div role="status" className="mb-4 p-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 text-xs flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 shrink-0" />
                 <span>{formSuccess}</span>
               </div>
@@ -167,10 +185,10 @@ function ServerFunctionsPage() {
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-[var(--sea-ink)] mb-1">
+                <label htmlFor="post-title" className="block text-xs font-semibold text-[var(--sea-ink)] mb-1">
                   Post Title (min 4 chars)
                 </label>
-                <input
+                <input id="post-title" minLength={4} maxLength={160}
                   type="text"
                   placeholder="e.g. Exploring Server Boundaries in TanStack Start"
                   value={title}
@@ -182,12 +200,12 @@ function ServerFunctionsPage() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-[var(--sea-ink)] mb-1">
+                  <label htmlFor="post-category" className="block text-xs font-semibold text-[var(--sea-ink)] mb-1">
                     Category
                   </label>
-                  <select
+                  <select id="post-category"
                     value={category}
-                    onChange={(e) => setCategory(e.target.value as any)}
+                    onChange={(e) => setCategory(e.target.value as Post['category'])}
                     className="demo-select text-xs"
                   >
                     <option value="architecture">Architecture</option>
@@ -198,10 +216,10 @@ function ServerFunctionsPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-[var(--sea-ink)] mb-1">
+                  <label htmlFor="post-author" className="block text-xs font-semibold text-[var(--sea-ink)] mb-1">
                     Author Name
                   </label>
-                  <input
+                  <input id="post-author" minLength={2} maxLength={80}
                     type="text"
                     placeholder="Your Name"
                     value={author}
@@ -212,10 +230,10 @@ function ServerFunctionsPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-[var(--sea-ink)] mb-1">
+                <label htmlFor="post-excerpt" className="block text-xs font-semibold text-[var(--sea-ink)] mb-1">
                   Excerpt (min 10 chars)
                 </label>
-                <input
+                <input id="post-excerpt" minLength={10} maxLength={500}
                   type="text"
                   placeholder="Brief summary of the article..."
                   value={excerpt}
@@ -226,10 +244,10 @@ function ServerFunctionsPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-[var(--sea-ink)] mb-1">
+                <label htmlFor="post-content" className="block text-xs font-semibold text-[var(--sea-ink)] mb-1">
                   Full Content (min 20 chars)
                 </label>
-                <textarea
+                <textarea id="post-content" minLength={20} maxLength={10000}
                   placeholder="Detailed markdown or body text for the server to persist..."
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
@@ -294,11 +312,11 @@ function ServerFunctionsPage() {
                   <span className="demo-pill font-mono text-[10px] uppercase">
                     {post.category}
                   </span>
-                  <span className="text-[11px] text-[var(--sea-ink-soft)]">{post.createdAt}</span>
+                  <span className="text-[11px] text-[var(--sea-ink-soft)]">{post.createdAt.split('T')[0]}</span>
                 </div>
 
                 <h3 className="text-sm font-bold text-[var(--sea-ink)] mb-1">
-                  {post.title}
+                  <Link to="/features/routing/posts/$postId" params={{ postId: post.id }} search={{ category: 'all', query: '', sortBy: 'newest' }}>{post.title}</Link>
                 </h3>
                 <p className="text-xs text-[var(--sea-ink-soft)] line-clamp-2 mb-3">
                   {post.excerpt}
@@ -309,6 +327,8 @@ function ServerFunctionsPage() {
                   <button
                     type="button"
                     onClick={() => handleLike(post.id)}
+                    disabled={likingIds.includes(post.id)}
+                    aria-label={`Like ${post.title}: ${post.likes} likes`}
                     className="demo-button text-[11px] py-1 px-2.5"
                   >
                     <Heart className="w-3 h-3 text-rose-500 fill-rose-500" />

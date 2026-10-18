@@ -12,7 +12,7 @@ export const Route = createFileRoute('/features/streaming')({
     // 1. Fast data resolves instantly (0ms delay)
     const fastMetadata = {
       shellTimestamp: fastShellTime,
-      ttfbMs: 5,
+      artificialShellDelayMs: 0,
       cachedUserSession: 'Architect Session Active',
     }
 
@@ -39,15 +39,18 @@ function StreamingPage() {
 
   const handleRefresh = async () => {
     setIsReloading(true)
-    await router.invalidate()
-    setIsReloading(false)
+    try {
+      await router.invalidate()
+    } finally {
+      setIsReloading(false)
+    }
   }
 
   return (
     <div className="demo-page">
       {/* Title */}
       <div className="mb-8">
-        <div className="flex items-center gap-2 mb-2">
+        <div className="flex flex-wrap items-center gap-2 mb-2">
           <FeatureBadge type="streaming" />
           <span className="text-xs font-mono text-[var(--sea-ink-soft)]">
             TanStack Router: defer() &lt;Await&gt; + Suspense
@@ -109,8 +112,8 @@ function StreamingPage() {
               <strong className="text-emerald-700 dark:text-emerald-300">{shellMountTime ?? 'Mounted'}</strong>
             </div>
             <div className="flex justify-between">
-              <span className="text-[var(--sea-ink-soft)]">Initial TTFB:</span>
-              <strong className="text-[var(--sea-ink)]">~{fastMetadata.ttfbMs} ms</strong>
+              <span className="text-[var(--sea-ink-soft)]">Artificial shell delay:</span>
+              <strong className="text-[var(--sea-ink)]">{fastMetadata.artificialShellDelayMs} ms</strong>
             </div>
           </div>
         </div>

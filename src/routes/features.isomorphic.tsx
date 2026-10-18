@@ -8,16 +8,12 @@ import {
   Code2,
 } from 'lucide-react'
 import { getOrigin, getEnvironmentInfo, type EnvironmentInfo } from '../utils/isomorphic'
+import { fetchServerEnvironment } from '../utils/serverFns'
 import { FeatureBadge } from '../components/FeatureBadge'
 import { CodeBlock } from '../components/CodeBlock'
 
 export const Route = createFileRoute('/features/isomorphic')({
-  loader: async () => {
-    // Calling getOrigin() on the SSR Server during route load!
-    const serverOrigin = getOrigin()
-    const serverEnv = getEnvironmentInfo()
-    return { serverOrigin, serverEnv }
-  },
+  loader: () => fetchServerEnvironment(),
   component: IsomorphicPage,
 })
 
@@ -45,7 +41,7 @@ function IsomorphicPage() {
     <div className="demo-page">
       {/* Title */}
       <div className="mb-8">
-        <div className="flex items-center gap-2 mb-2">
+        <div className="flex flex-wrap items-center gap-2 mb-2">
           <FeatureBadge type="isomorphic" />
           <span className="text-xs font-mono text-[var(--sea-ink-soft)]">
             @tanstack/react-start: createIsomorphicFn
@@ -144,7 +140,7 @@ const origin = getOrigin()`}
 
               <div className="pt-2 border-t border-purple-500/15">
                 <span className="text-[11px] font-semibold text-[var(--sea-ink)]">Isolated Server Context:</span>
-                <pre className="mt-1 p-2 rounded-lg bg-[var(--surface-strong)] text-[11px] font-mono text-[var(--sea-ink)] overflow-x-auto m-0">
+                <pre tabIndex={0} aria-label="Runtime context JSON" className="mt-1 p-2 rounded-lg bg-[var(--surface-strong)] text-[11px] font-mono text-[var(--sea-ink)] overflow-x-auto m-0">
                   {JSON.stringify(serverEnv.details, null, 2)}
                 </pre>
               </div>
@@ -178,7 +174,7 @@ const origin = getOrigin()`}
 
                 <div className="pt-2 border-t border-blue-500/15">
                   <span className="text-[11px] font-semibold text-[var(--sea-ink)]">Browser DOM Context:</span>
-                  <pre className="mt-1 p-2 rounded-lg bg-[var(--surface-strong)] text-[11px] font-mono text-[var(--sea-ink)] overflow-x-auto m-0">
+                  <pre tabIndex={0} aria-label="Runtime context JSON" className="mt-1 p-2 rounded-lg bg-[var(--surface-strong)] text-[11px] font-mono text-[var(--sea-ink)] overflow-x-auto m-0">
                     {JSON.stringify(clientEnv?.details, null, 2)}
                   </pre>
                 </div>

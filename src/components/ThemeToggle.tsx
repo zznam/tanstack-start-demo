@@ -7,7 +7,8 @@ function getInitialMode(): ThemeMode {
     return 'auto'
   }
 
-  const stored = window.localStorage.getItem('theme')
+  let stored: string | null = null
+  try { stored = window.localStorage.getItem('theme') } catch { /* Storage may be blocked. */ }
   if (stored === 'light' || stored === 'dark' || stored === 'auto') {
     return stored
   }
@@ -54,12 +55,23 @@ export default function ThemeToggle() {
     }
   }, [mode])
 
+  useEffect(() => {
+    const onStorage = (event: StorageEvent) => {
+      if (event.key !== 'theme' && event.key !== null) return
+      const next = getInitialMode()
+      setMode(next)
+      applyThemeMode(next)
+    }
+    window.addEventListener('storage', onStorage)
+    return () => window.removeEventListener('storage', onStorage)
+  }, [])
+
   function toggleMode() {
     const nextMode: ThemeMode =
       mode === 'light' ? 'dark' : mode === 'dark' ? 'auto' : 'light'
     setMode(nextMode)
     applyThemeMode(nextMode)
-    window.localStorage.setItem('theme', nextMode)
+    try { window.localStorage.setItem('theme', nextMode) } catch { /* Theme still works for this visit. */ }
   }
 
   const label =

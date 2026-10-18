@@ -4,7 +4,7 @@ import { Link } from '@tanstack/react-router'
 import { useState } from 'react'
 
 export interface ErrorComponentProps {
-  error: any
+  error: unknown
   reset?: () => void
 }
 
@@ -37,7 +37,7 @@ export function DefaultCatchBoundary({ error, reset }: ErrorComponentProps) {
           {errorMessage}
         </div>
 
-        {errorStack && (
+        {import.meta.env.DEV && errorStack && (
           <div className="mt-3">
             <button
               type="button"
@@ -48,7 +48,7 @@ export function DefaultCatchBoundary({ error, reset }: ErrorComponentProps) {
             </button>
             {showStack && (
               <pre className="mt-2 p-3 text-xs font-mono rounded-lg border border-[var(--line)] bg-[var(--surface-strong)] overflow-x-auto max-h-64">
-                {error.stack}
+                {errorStack}
               </pre>
             )}
           </div>

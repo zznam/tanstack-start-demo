@@ -227,7 +227,7 @@ pre code {
 }
 
 .demo-title {
-  margin: 0;
+  margin: 0 0 0.75rem;
   color: var(--sea-ink);
   font-size: clamp(1.75rem, 4vw, 2.75rem);
   line-height: 1.05;
@@ -462,3 +462,34 @@ a {
   }
 }
 
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:focus-visible {
+  outline: 3px solid var(--lagoon-deep);
+  outline-offset: 3px;
+}
+
+.skip-link {
+  position: fixed;
+  top: 0.5rem;
+  left: 1rem;
+  z-index: 100;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  background: var(--surface-strong);
+  transform: translateY(-160%);
+}
+
+.skip-link:focus { transform: translateY(0); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+.demo-input[type="search"] { padding-inline-start: 2.25rem; }

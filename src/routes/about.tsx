@@ -22,9 +22,9 @@ function AboutPage() {
   ]
 
   return (
-    <main className="page-wrap px-4 py-12">
+    <div className="page-wrap px-4 py-12">
       <section className="island-shell rounded-2xl p-6 sm:p-10 mb-8">
-        <div className="flex items-center gap-2 mb-2">
+        <div className="flex flex-wrap items-center gap-2 mb-2">
           <FeatureBadge type="routing" />
           <FeatureBadge type="nitro" />
         </div>
@@ -52,10 +52,10 @@ function AboutPage() {
             </div>
             <div>• @tanstack/react-start: 1.169.3</div>
             <div>• @tanstack/react-router: 1.170.45</div>
-            <div>• React: 19.2.0</div>
+            <div>• React: 19.x</div>
             <div>• Nitro Server Engine: 3.0</div>
-            <div>• Vite Bundler: 8.0</div>
-            <div>• Tailwind CSS: 4.1</div>
+            <div>• Vite Bundler: 8.x</div>
+            <div>• Tailwind CSS: 4.x</div>
           </div>
 
           <div className="p-4 rounded-xl bg-[var(--surface-strong)] border border-[var(--line)] space-y-1.5">
@@ -116,6 +116,6 @@ function AboutPage() {
           </a>
         </div>
       </section>
-    </main>
+    </div>
   )
 }

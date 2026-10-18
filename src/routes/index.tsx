@@ -87,10 +87,10 @@ function HomePage() {
       desc: 'Why strict compiler types and TanStack Intent skill guidance make Start the premier framework for human + AI pairing.',
       icon: Bot,
     },
-  ]
+  ] as const
 
   return (
-    <main className="page-wrap px-4 pb-16 pt-8 sm:pt-12">
+    <div className="page-wrap px-4 pb-16 pt-8 sm:pt-12">
       {/* Announcement Ribbon */}
       <div className="flex justify-center mb-6">
         <a
@@ -128,7 +128,7 @@ function HomePage() {
         <div className="flex flex-wrap justify-center gap-3">
           <Link
             to="/features/routing"
-            search={{ category: 'all', sortBy: 'newest', page: 1 }}
+            search={{ category: 'all', query: '', sortBy: 'newest' }}
             className="demo-button no-underline px-6 py-3 text-sm shadow-md"
           >
             <span>Explore All Feature Demos</span>
@@ -198,8 +198,8 @@ function HomePage() {
             return (
               <Link
                 key={card.to}
-                to={card.to as any}
-                search={card.to === '/features/routing' ? ({ category: 'all', sortBy: 'newest', page: 1 } as any) : undefined}
+                to={card.to}
+                search={card.to === '/features/routing' ? { category: 'all', query: '', sortBy: 'newest' } : undefined}
                 className="island-shell feature-card group rounded-2xl p-5 flex flex-col justify-between no-underline transition-all hover:scale-[1.02]"
               >
                 <div>
@@ -261,6 +261,6 @@ function HomePage() {
           </div>
         </div>
       </section>
-    </main>
+    </div>
   )
 }

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useClipboard } from '../utils/useClipboard'
 import { Check, Copy } from 'lucide-react'
 
 interface Props {
@@ -8,17 +8,7 @@ interface Props {
 }
 
 export function CodeBlock({ code, title, language = 'typescript' }: Props) {
-  const [copied, setCopied] = useState(false)
-
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(code)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
-    } catch {
-      // Fallback
-    }
-  }
+  const { copied, copyError, copy } = useClipboard()
 
   return (
     <div className="overflow-hidden rounded-xl border border-[var(--line)] bg-[var(--surface-strong)] my-3 shadow-sm">
@@ -26,7 +16,7 @@ export function CodeBlock({ code, title, language = 'typescript' }: Props) {
         <span className="font-semibold text-[var(--sea-ink)]">{title || `${language}`}</span>
         <button
           type="button"
-          onClick={handleCopy}
+          onClick={() => copy(code)}
           aria-label="Copy code to clipboard"
           className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs hover:bg-[var(--chip-bg)] transition text-[var(--sea-ink)]"
         >
@@ -43,7 +33,9 @@ export function CodeBlock({ code, title, language = 'typescript' }: Props) {
           )}
         </button>
       </div>
-      <pre className="p-4 overflow-x-auto text-xs sm:text-sm font-mono text-[var(--sea-ink)] leading-relaxed m-0">
+      <span role="status" className="sr-only">{copied ? 'Code copied' : copyError}</span>
+      {copyError && <p className="px-4 text-xs" role="alert">{copyError}</p>}
+      <pre tabIndex={0} aria-label={title || `${language} code`} className="p-4 overflow-x-auto text-xs sm:text-sm font-mono text-[var(--sea-ink)] leading-relaxed m-0">
         <code>{code}</code>
       </pre>
     </div>
