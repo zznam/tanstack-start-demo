@@ -4,6 +4,8 @@ A comprehensive, production-grade demonstration project built in `~/workspace/ta
 
 🔗 **[TanStack Start 1.0 is Stable](https://tanstack.com/blog/tanstack-start-1-0)** (October 2026)
 
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fzznam%2Ftanstack-start-demo)
+
 ---
 
 ## ⚡ Quick Start
