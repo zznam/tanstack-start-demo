@@ -9,14 +9,7 @@ import { getRequest } from '@tanstack/react-start/server'
  *  and you can put those two implementations right next to each other."
  */
 export const getOrigin = createIsomorphicFn()
-  .server(() => {
-    try {
-      const req = getRequest()
-      return new URL(req.url).origin
-    } catch {
-      return 'http://localhost:3000'
-    }
-  })
+  .server(() => new URL(getRequest().url).origin)
   .client(() => {
     return window.location.origin
   })

@@ -21,57 +21,42 @@ export interface ServerRequestInfo {
 }
 
 export const getServerRequestInfo = createServerFn({ method: 'GET' }).handler(async (): Promise<ServerRequestInfo> => {
-  try {
-    const req = getRequest()
-    const rawHeaders = (getRequestHeaders() as unknown) as Record<string, string | undefined>
-    const ip = getRequestIP() ?? '127.0.0.1'
-    const host = getRequestHost() ?? 'localhost:3000'
-    const protocol = getRequestProtocol() ?? 'http'
+  const req = getRequest()
+  const rawHeaders = getRequestHeaders()
+  const ip = getRequestIP() ?? 'Unavailable (proxy headers are not trusted)'
+  const host = getRequestHost() ?? 'localhost:3000'
+  const protocol = getRequestProtocol() ?? 'http'
 
-    // Pick notable headers to display safely
-    const interestingKeys = [
-      'user-agent',
-      'accept',
-      'accept-encoding',
-      'accept-language',
-      'sec-ch-ua',
-      'sec-ch-ua-platform',
-      'sec-fetch-mode',
-      'sec-fetch-dest',
-    ]
+  // Pick notable headers to display safely
+  const interestingKeys = [
+    'user-agent',
+    'accept',
+    'accept-encoding',
+    'accept-language',
+    'sec-ch-ua',
+    'sec-ch-ua-platform',
+    'sec-fetch-mode',
+    'sec-fetch-dest',
+  ]
 
-    const headersSubset: Record<string, string> = {}
-    for (const key of interestingKeys) {
-      const val = rawHeaders[key]
-      if (val) {
-        headersSubset[key] = String(val)
-      }
+  const headersSubset: Record<string, string> = {}
+  for (const key of interestingKeys) {
+    const val = rawHeaders.get(key)
+    if (val) {
+      headersSubset[key] = String(val)
     }
+  }
 
-    return {
-      url: req.url,
-      method: req.method,
-      protocol,
-      host,
-      ip,
-      userAgent: rawHeaders['user-agent'] ?? 'Unknown',
-      acceptLanguage: rawHeaders['accept-language'] ?? 'en',
-      nitroPreset: process.env.NITRO_PRESET ?? 'nitro-dev / local',
-      runtimePlatform: `${process.platform} (${process.arch}) Node ${process.version}`,
-      headersSubset,
-    }
-  } catch (err: any) {
-    return {
-      url: 'http://localhost:3000',
-      method: 'GET',
-      protocol: 'http',
-      host: 'localhost:3000',
-      ip: '127.0.0.1',
-      userAgent: 'Internal Server Function',
-      acceptLanguage: 'en',
-      nitroPreset: 'nitro-dev',
-      runtimePlatform: `${process.platform} Node ${process.version}`,
-      headersSubset: { status: 'Direct SSR invocation' },
-    }
+  return {
+    url: req.url,
+    method: req.method,
+    protocol,
+    host,
+    ip,
+    userAgent: rawHeaders.get('user-agent') ?? 'Unknown',
+    acceptLanguage: rawHeaders.get('accept-language') ?? 'en',
+    nitroPreset: process.env.NITRO_PRESET ?? (process.env.NODE_ENV === 'production' ? 'Nitro / Node server' : 'Nitro development server'),
+    runtimePlatform: `${process.platform} (${process.arch}) Node ${process.version}`,
+    headersSubset,
   }
 })

@@ -79,6 +79,3 @@ export const INITIAL_POSTS: Post[] = [
     likes: 195,
   },
 ]
-
-// Server-side mutable in-memory store for demo mutations
-export const postsStore: Post[] = [...INITIAL_POSTS]
