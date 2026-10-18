@@ -1,139 +1,72 @@
-# TanStack Start 1.0 Feature Showcase
+# TanStack Start Feature Showcase
 
-A comprehensive, production-grade demonstration project built in `~/workspace/tanstack-start-demo` showcasing every core architectural primitive and feature announced in Tanner Linsley's milestone release post:
+An interactive learning project for typed routing, server functions, middleware, isomorphic functions, selective SSR, and streamed data. Built with React, TanStack Start, Vite, Tailwind CSS, and Nitro's Node server preset.
 
-🔗 **[TanStack Start 1.0 is Stable](https://tanstack.com/blog/tanstack-start-1-0)** (October 2026)
+Inspired by the [TanStack Start announcement](https://tanstack.com/blog/tanstack-start-1-0). The articles are sample data, and this demo is not a production content platform.
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fzznam%2Ftanstack-start-demo)
 
----
+## Run locally
 
-## ⚡ Quick Start
+Use Node.js **22.18 or newer** and **pnpm 10.28.2**. Install dependencies from the lockfile before starting:
 
-```bash
-# 1. Navigate to the project directory
-cd ~/workspace/tanstack-start-demo
-
-# 2. Run the development server
+```sh
+pnpm install --frozen-lockfile
 pnpm dev
+```
 
-# 3. Or build and preview the production SSR Nitro bundle
+Open `http://localhost:3000`. For the production Node server:
+
+```sh
 pnpm build
-pnpm preview
+pnpm start
 ```
 
-The application runs on `http://localhost:3000` (or `http://localhost:3001` in preview mode).
+The server defaults to port 3000; use `PORT=3001 pnpm start` to change it. `pnpm preview` also previews the generated Nitro bundle.
 
----
+## Explore the demos
 
-## 🧭 Feature Matrix & Architecture Map
+- `/features/routing`: validated URL search, categories, sorting, intent preloading, and interactive error/404 boundaries.
+- `/features/routing/posts/1`: a real article detail route with server-backed likes and a back link that preserves search state. The filename's `routing_` keeps the detail page independent of the list component.
+- `/features/server-functions`: create sample posts through validated POST server functions, update likes, and trigger an intentional server error.
+- `/features/middleware`: client/server telemetry with an actual request ID, server processing interval, and browser round trip. The fixed identity token is an **authentication simulation**, not access control. Clock differences affect the displayed client/server timestamp delta.
+- `/features/isomorphic`: compare a server function's server environment with a browser call to `createIsomorphicFn`. The browser call makes no RPC request.
+- `/features/execution-modes`: compare route configurations. Open `/features/execution-modes/spa` for `ssr: false` or `/features/execution-modes/hybrid` for `ssr: 'data-only'`.
+- `/features/streaming`: render the page shell while a separate 1500 ms simulated query resolves through `defer`, `Suspense`, and `Await`.
+- `/features/server-context`: inspect the current request's URL and allowlisted headers. IP addresses are shown as unavailable when the adapter does not provide one; forwarded headers are not trusted automatically.
+- `/features/agent-dx`: illustrative examples of type checking and the optional TanStack Intent workflow.
+- `/about`: project and ecosystem background.
 
-This project provides an interactive, inspectable UI and working code for every major feature in the TanStack Start 1.0 release:
+On the initial request, default SSR runs the loader and component on the server. `data-only` runs the loader there but renders the component in the browser. `ssr: false` runs both in the browser. **Later client navigations run route loaders in the browser**; `createServerFn` is the boundary that keeps server work on the server. Bot requests may wait for all deferred content instead of receiving the progressively streamed response a browser receives.
 
-| Blog Feature Section | Source Code File | Route Path | Description |
-|---|---|---|---|
-| **Start started with a router** | `src/routes/features.routing.tsx` | `/features/routing` | Type-safe route params (`$postId`), Zod search schema validation (`validateSearch`), link preloading (`preload="intent"`), and error boundaries. |
-| **Dynamic Routing** | `src/routes/features.routing.posts.$postId.tsx` | `/features/routing/posts/$postId` | Parameter extraction (`params.postId`), automatic type inference, `notFound()` handling, and in-memory server mutations. |
-| **I wanted another option** | `src/routes/features.execution-modes.tsx` | `/features/execution-modes` | Flexible route execution choices: Full SSR, Client-Only (`ssr: false` / SPA mode), and Hybrid Server Loader + Client Component rendering. |
-| **Typed Server Functions** | `src/routes/features.server-functions.tsx` | `/features/server-functions` | `createServerFn` with GET/POST methods, Zod schema validation, loader calls, client RPC calls, and error serialization. |
-| **Full-Stack Middleware** | `src/routes/features.middleware.tsx` | `/features/middleware` | `createMiddleware({ type: 'function' })` crossing client and server boundaries with type-safe `sendContext` and live latency tracing. |
-| **Choosing where code runs** | `src/routes/features.isomorphic.tsx` | `/features/isomorphic` | Recreates Tanner's exact `createIsomorphicFn().server(...).client(...)` snippet with compiler dead-code elimination and tree-shaking. |
-| **Streaming Responses** | `src/routes/features.streaming.tsx` | `/features/streaming` | Fast initial shell delivery with progressive chunked streaming of deferred promises using `defer()`, `<Suspense>`, and `<Await>`. |
-| **Freedom takes work (Nitro)** | `src/routes/features.server-context.tsx` | `/features/server-context` | Real HTTP request inspection with `@tanstack/react-start/server` (`getRequest`, headers, IP) across Nitro adapters (Cloudflare, Vercel, Node). |
-| **Then agents showed up** | `src/routes/features.agent-dx.tsx` | `/features/agent-dx` | Explains why strict compiler types and TanStack Intent (`@tanstack/intent`) make Start the optimal stack for AI agent pairing. |
-| **Ecosystem Partners** | `src/routes/about.tsx` | `/about` | Overview of partners betting on Start 1.0 (Cloudflare, Render, Netlify, CodeRabbit, Lovable, Vercel, Railway, Clerk, WorkOS, Prisma). |
+## Data and hosting limits
 
----
+Post data is shared by visitors to a single server process, kept in memory, and capped at 100 posts. It resets on restart and is not synchronized between instances. Input lengths and whitespace are validated on the client and server. Use a database, authentication, and abuse controls before adapting mutations for real user data.
 
-## 🛠️ Technology Stack
+The runnable configuration targets Node/Nitro. Hosting examples describe options; they do not switch adapters or prove deployment compatibility. Browser theme choice survives reloads when storage is available and remains usable when storage is blocked. Production builds omit the developer-tools UI and stack-trace control.
 
-- **Framework**: `@tanstack/react-start` (`1.169.3`)
-- **Router**: `@tanstack/react-router` (`1.170.45`)
-- **UI Library**: `react` & `react-dom` (`19.2.0`)
-- **Server Engine**: `nitro` (`3.0`)
-- **Bundler**: `vite` (`8.0`) + `@vitejs/plugin-react`
-- **Validation**: `zod` (`4.x`)
-- **Styling**: `tailwindcss` (`4.1`)
-- **Icons**: `lucide-react`
-- **Agent Skill Integration**: `@tanstack/intent`
+## Validation
 
----
-
-## 💡 Key Architectural Concepts
-
-### 1. Explicit Isomorphic Functions (`createIsomorphicFn`)
-```ts
-import { createIsomorphicFn } from '@tanstack/react-start'
-import { getRequest } from '@tanstack/react-start/server'
-
-export const getOrigin = createIsomorphicFn()
-  .server(() => new URL(getRequest().url).origin)
-  .client(() => window.location.origin)
-```
-- On the server, `getOrigin()` reads the incoming request URL.
-- In the browser, `getOrigin()` reads `window.location.origin` without making any network request.
-- The compiler strips the server implementation from client bundles and the client implementation from server bundles.
-
-### 2. Full-Stack Middleware (`createMiddleware`)
-```ts
-export const timingMiddleware = createMiddleware({ type: 'function' })
-  .client(async (ctx) => {
-    const clientStartTime = Date.now()
-    // sendContext passes variables over the wire to the server!
-    const res = await ctx.next({ sendContext: { clientStartTime } })
-    return { ...res, context: { totalRoundtrip: Date.now() - clientStartTime } }
-  })
-  .server(async (ctx) => {
-    // Server receives clientStartTime from context!
-    const serverReceivedTime = Date.now()
-    const durationToServer = serverReceivedTime - ctx.context.clientStartTime
-    return ctx.next({ sendContext: { serverReceivedTime, durationToServer } })
-  })
+```sh
+pnpm check       # regenerate routes, strict TypeScript, data regression tests
+pnpm build       # production client and SSR bundles
+pnpm exec playwright install chromium  # once, for browser tests
+pnpm test:e2e    # production server on 127.0.0.1:3100; desktop and touch mobile
+pnpm audit
 ```
 
-### 3. Progressive Streaming (`defer` & `<Await>`)
-```tsx
-export const Route = createFileRoute('/streaming')({
-  loader: async () => ({
-    fastMetadata: { status: 'instant' },
-    deferredSlowData: defer(slowBackendQuery()), // Streams over HTTP!
-  }),
-  component: () => {
-    const { fastMetadata, deferredSlowData } = Route.useLoaderData()
-    return (
-      <Suspense fallback={<p>Streaming chunk from server...</p>}>
-        <Await promise={deferredSlowData}>
-          {(data) => <ResolvedWidget data={data} />}
-        </Await>
-      </Suspense>
-    )
-  },
-})
-```
+`pnpm verify` runs the checks, build, and browser tests in sequence. Port 3100 must be free. Browser tests exercise page rendering, accessibility scans, search/detail navigation, create/like RPCs, middleware telemetry, request metadata, error states, themes with blocked storage, selective SSR response contents, and progressive streaming. Failures retain screenshots and traces under `test-results/`; the HTML report is in `playwright-report/`.
 
----
+The targeted `postcss-selector-parser` override patches the parser used by Tailwind Typography. Keep it until Typography adopts a patched parser, then remove it and rerun the build and accessibility/browser checks.
 
-## 🤖 TanStack Intent for Coding Agents
+## Source layout
 
-This project has TanStack Intent configured (`AGENTS.md` / `CLAUDE.md`). Agents can query current framework best practices on-demand:
-```bash
-# List available skills across installed npm packages
-pnpm dlx @tanstack/intent list
+- `src/routes/`: file-based routes; `src/routeTree.gen.ts` is generated.
+- `src/utils/serverFns.ts`: server RPC entry points.
+- `src/utils/postSchemas.ts`: shared form and URL validation.
+- `src/utils/postStore.server.ts`: bounded demo store with independent snapshots.
+- `src/utils/middleware.ts`: timing and simulated identity middleware.
+- `src/components/`: shared shell, clipboard feedback, themes, and error views.
+- `tests/`: data tests and production browser regressions.
 
-# Load a specific skill on-demand
-pnpm dlx @tanstack/intent load @tanstack/react-start#server-functions
-```
-
----
-
-## 🧪 Verification & Type Checking
-
-To verify strict TypeScript compilation across the entire project:
-```bash
-pnpm tsc --noEmit
-```
-
-To run a clean production build:
-```bash
-pnpm build
-```
+TanStack Intent is optional. The Agent DX page illustrates its workflow; this checkout does not include generated `AGENTS.md` or `CLAUDE.md` integration files. Check the [Intent documentation](https://tanstack.com/intent) before configuring it for your agent.
