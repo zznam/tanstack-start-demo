@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, Link } from '@tanstack/react-router'
 import { useState, useEffect } from 'react'
 import { Split, Server, Monitor, Cpu, Check, Layers } from 'lucide-react'
 import { FeatureBadge } from '../components/FeatureBadge'
@@ -11,7 +11,7 @@ const fetchServerLoaderData = createServerFn({ method: 'GET' }).handler(async ()
     serverTimestamp: new Date().toISOString(),
     loaderEnvironment: 'Nitro / Node SSR Environment',
     databaseQuerySimulatedMs: 12,
-    secretProtectedApiCalled: true,
+    sampleQuery: 'Simulated server data; no secret API is configured',
   }
 })
 
@@ -63,8 +63,9 @@ function ExecutionModesPage() {
       tagline: 'Server fetches data; Client renders the component tree',
       bestFor: 'Authenticated app dashboards with heavy client charts, avoiding hydration mismatch overhead.',
       howItWorks:
-        'The route loader runs on the server (accessing internal databases, secret API keys, and environment variables). The resulting data is sent over the wire, and the component renders exclusively on the client.',
+        "On the initial request, ssr: 'data-only' runs the loader on the server and sends its data to the browser without rendering the component. Later navigations run loaders in the browser; server functions still execute on the server.",
       code: `export const Route = createFileRoute('/dashboard')({
+  ssr: 'data-only', // Load on server, render component in browser
   loader: async () => fetchSecretProtectedDbData(),
   // Component can use browser globals without SSR hydration warnings
   component: () => <HeavyDashboardComponent />,
@@ -93,7 +94,7 @@ function ExecutionModesPage() {
     <div className="demo-page">
       {/* Title */}
       <div className="mb-8">
-        <div className="flex items-center gap-2 mb-2">
+        <div className="flex flex-wrap items-center gap-2 mb-2">
           <FeatureBadge type="ssr" />
           <FeatureBadge type="client" />
         </div>
@@ -141,10 +142,15 @@ function ExecutionModesPage() {
         </div>
 
         <div className="mt-4 pt-3 border-t border-emerald-500/15 text-xs text-[var(--sea-ink-soft)] font-mono">
-          Data loaded by server: <code>{serverData.loaderEnvironment}</code> • Protected query: <code>{serverData.secretProtectedApiCalled ? 'Verified ✅' : 'No'}</code>
+          Data loaded by server: <code>{serverData.loaderEnvironment}</code> • Demo query: <code>{serverData.sampleQuery}</code>
         </div>
       </div>
 
+      <div className="demo-panel mb-6 flex flex-wrap gap-3">
+        <p className="w-full text-sm">Open a live route to verify its execution mode. The selector below compares the configurations.</p>
+        <Link to="/features/execution-modes/spa" preload={false} className="demo-button">Open client-only demo</Link>
+        <Link to="/features/execution-modes/hybrid" preload={false} className="demo-button">Open data-only SSR demo</Link>
+      </div>
       {/* Mode Selector Tabs */}
       <div className="flex flex-wrap gap-2 mb-6">
         {modes.map((mode) => (
@@ -152,6 +158,7 @@ function ExecutionModesPage() {
             key={mode.id}
             type="button"
             onClick={() => setSelectedMode(mode.id)}
+            aria-pressed={selectedMode === mode.id}
             className={`flex-1 min-w-[200px] p-4 rounded-xl border text-left transition ${
               selectedMode === mode.id
                 ? 'border-[var(--lagoon-deep)] bg-[var(--surface-strong)] shadow-md ring-1 ring-[var(--lagoon-deep)]'
@@ -170,7 +177,7 @@ function ExecutionModesPage() {
 
       {/* Mode Detail Card */}
       <div className="demo-panel mb-8">
-        <div className="flex items-center gap-2 mb-2">
+        <div className="flex flex-wrap items-center gap-2 mb-2">
           <activeMode.icon className="w-5 h-5 text-[var(--lagoon-deep)]" />
           <h2 className="text-lg font-bold text-[var(--sea-ink)]">{activeMode.title}</h2>
         </div>
@@ -229,17 +236,17 @@ function ExecutionModesPage() {
             <tbody>
               <tr>
                 <td className="font-bold">Full SSR (Default)</td>
-                <td>Server (Node/Nitro)</td>
+                <td>Server initially; browser on navigation</td>
                 <td>Server ➔ Client Hydration</td>
                 <td>⭐⭐⭐⭐⭐ Instant</td>
-                <td>✅ Server only</td>
+                <td>Server functions only</td>
               </tr>
               <tr>
                 <td className="font-bold">Server Loader + Client UI</td>
-                <td>Server (Node/Nitro)</td>
+                <td>Server initially; browser on navigation</td>
                 <td>Client Only</td>
                 <td>⭐⭐⭐ Fast Shell</td>
-                <td>✅ Server only</td>
+                <td>Server functions only</td>
               </tr>
               <tr>
                 <td className="font-bold">Client-Only (SPA)</td>

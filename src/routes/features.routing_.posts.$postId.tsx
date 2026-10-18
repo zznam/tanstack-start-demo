@@ -1,47 +1,42 @@
-import { createFileRoute, Link, notFound } from '@tanstack/react-router'
-import { useState } from 'react'
+import { createFileRoute, Link, useRouter } from '@tanstack/react-router'
+import { useEffect, useState } from 'react'
 import { ArrowLeft, Heart, Calendar, User, Clock, Share2, Check, Tag } from 'lucide-react'
 import { fetchPostById, toggleLikeMutation } from '../utils/serverFns'
 import { FeatureBadge } from '../components/FeatureBadge'
 import { CodeBlock } from '../components/CodeBlock'
+import { routingSearchSchema } from '../utils/postSchemas'
+import { useClipboard } from '../utils/useClipboard'
 
-export const Route = createFileRoute('/features/routing/posts/$postId')({
-  loader: async ({ params }) => {
-    try {
-      const post = await fetchPostById({ data: { id: params.postId } })
-      return { post }
-    } catch (err: any) {
-      throw notFound()
-    }
-  },
+export const Route = createFileRoute('/features/routing_/posts/$postId')({
+  validateSearch: (search) => routingSearchSchema.parse(search),
+  loader: async ({ params }) => ({ post: await fetchPostById({ data: { id: params.postId } }) }),
+  remountDeps: ({ params }) => params.postId,
   component: PostDetailPage,
 })
 
 function PostDetailPage() {
   const { post } = Route.useLoaderData()
   const params = Route.useParams()
+  const search = Route.useSearch()
+  const router = useRouter()
   const [likes, setLikes] = useState(post.likes)
   const [isLiking, setIsLiking] = useState(false)
-  const [copied, setCopied] = useState(false)
+  const { copied, copyError, copy } = useClipboard()
+  const [likeError, setLikeError] = useState<string | null>(null)
+  useEffect(() => setLikes(post.likes), [post.likes])
 
   const handleLike = async () => {
     if (isLiking) return
     setIsLiking(true)
+    setLikeError(null)
     try {
       const result = await toggleLikeMutation({ data: { id: post.id } })
       setLikes(result.likes)
+      await router.invalidate()
+    } catch {
+      setLikeError('Could not like this post. Please try again.')
     } finally {
       setIsLiking(false)
-    }
-  }
-
-  const handleShare = async () => {
-    try {
-      await navigator.clipboard.writeText(window.location.href)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
-    } catch {
-      // ignore
     }
   }
 
@@ -51,7 +46,7 @@ function PostDetailPage() {
       <div className="mb-6">
         <Link
           to="/features/routing"
-          search={{ category: 'all', sortBy: 'newest', page: 1 }}
+          search={search}
           className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--lagoon-deep)] hover:underline no-underline"
         >
           <ArrowLeft className="w-4 h-4" />
@@ -81,7 +76,7 @@ function PostDetailPage() {
           </span>
           <span className="flex items-center gap-1">
             <Calendar className="w-3.5 h-3.5" />
-            {post.createdAt}
+            {post.createdAt.split('T')[0]}
           </span>
           <span className="flex items-center gap-1">
             <Clock className="w-3.5 h-3.5" />
@@ -110,8 +105,9 @@ function PostDetailPage() {
           ))}
         </div>
 
+        {(likeError || copyError) && <p role="alert" className="demo-alert demo-alert-danger mb-3">{likeError || copyError}</p>}
         {/* Interactive Action Bar */}
-        <div className="pt-4 border-t border-[var(--line)] flex items-center justify-between">
+        <div className="pt-4 border-t border-[var(--line)] flex flex-wrap gap-3 items-center justify-between">
           <button
             type="button"
             onClick={handleLike}
@@ -124,7 +120,7 @@ function PostDetailPage() {
 
           <button
             type="button"
-            onClick={handleShare}
+            onClick={() => copy(window.location.href)}
             className="demo-button demo-button-secondary text-xs"
           >
             {copied ? (

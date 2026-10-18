@@ -19,7 +19,9 @@ import { Route as FeaturesRoutingRouteImport } from './routes/features.routing'
 import { Route as FeaturesServerContextRouteImport } from './routes/features.server-context'
 import { Route as FeaturesServerFunctionsRouteImport } from './routes/features.server-functions'
 import { Route as FeaturesStreamingRouteImport } from './routes/features.streaming'
-import { Route as FeaturesRoutingPostsPostIdRouteImport } from './routes/features.routing.posts.$postId'
+import { Route as FeaturesExecutionModesHybridRouteImport } from './routes/features.execution-modes_.hybrid'
+import { Route as FeaturesExecutionModesSpaRouteImport } from './routes/features.execution-modes_.spa'
+import { Route as FeaturesRoutingPostsPostIdRouteImport } from './routes/features.routing_.posts.$postId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -71,11 +73,23 @@ const FeaturesStreamingRoute = FeaturesStreamingRouteImport.update({
   path: '/features/streaming',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FeaturesExecutionModesHybridRoute =
+  FeaturesExecutionModesHybridRouteImport.update({
+    id: '/features/execution-modes_/hybrid',
+    path: '/features/execution-modes/hybrid',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const FeaturesExecutionModesSpaRoute =
+  FeaturesExecutionModesSpaRouteImport.update({
+    id: '/features/execution-modes_/spa',
+    path: '/features/execution-modes/spa',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const FeaturesRoutingPostsPostIdRoute =
   FeaturesRoutingPostsPostIdRouteImport.update({
-    id: '/posts/$postId',
-    path: '/posts/$postId',
-    getParentRoute: () => FeaturesRoutingRoute,
+    id: '/features/routing_/posts/$postId',
+    path: '/features/routing/posts/$postId',
+    getParentRoute: () => rootRouteImport,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -85,10 +99,12 @@ export interface FileRoutesByFullPath {
   '/features/execution-modes': typeof FeaturesExecutionModesRoute
   '/features/isomorphic': typeof FeaturesIsomorphicRoute
   '/features/middleware': typeof FeaturesMiddlewareRoute
-  '/features/routing': typeof FeaturesRoutingRouteWithChildren
+  '/features/routing': typeof FeaturesRoutingRoute
   '/features/server-context': typeof FeaturesServerContextRoute
   '/features/server-functions': typeof FeaturesServerFunctionsRoute
   '/features/streaming': typeof FeaturesStreamingRoute
+  '/features/execution-modes/hybrid': typeof FeaturesExecutionModesHybridRoute
+  '/features/execution-modes/spa': typeof FeaturesExecutionModesSpaRoute
   '/features/routing/posts/$postId': typeof FeaturesRoutingPostsPostIdRoute
 }
 export interface FileRoutesByTo {
@@ -98,10 +114,12 @@ export interface FileRoutesByTo {
   '/features/execution-modes': typeof FeaturesExecutionModesRoute
   '/features/isomorphic': typeof FeaturesIsomorphicRoute
   '/features/middleware': typeof FeaturesMiddlewareRoute
-  '/features/routing': typeof FeaturesRoutingRouteWithChildren
+  '/features/routing': typeof FeaturesRoutingRoute
   '/features/server-context': typeof FeaturesServerContextRoute
   '/features/server-functions': typeof FeaturesServerFunctionsRoute
   '/features/streaming': typeof FeaturesStreamingRoute
+  '/features/execution-modes/hybrid': typeof FeaturesExecutionModesHybridRoute
+  '/features/execution-modes/spa': typeof FeaturesExecutionModesSpaRoute
   '/features/routing/posts/$postId': typeof FeaturesRoutingPostsPostIdRoute
 }
 export interface FileRoutesById {
@@ -112,11 +130,13 @@ export interface FileRoutesById {
   '/features/execution-modes': typeof FeaturesExecutionModesRoute
   '/features/isomorphic': typeof FeaturesIsomorphicRoute
   '/features/middleware': typeof FeaturesMiddlewareRoute
-  '/features/routing': typeof FeaturesRoutingRouteWithChildren
+  '/features/routing': typeof FeaturesRoutingRoute
   '/features/server-context': typeof FeaturesServerContextRoute
   '/features/server-functions': typeof FeaturesServerFunctionsRoute
   '/features/streaming': typeof FeaturesStreamingRoute
-  '/features/routing/posts/$postId': typeof FeaturesRoutingPostsPostIdRoute
+  '/features/execution-modes_/hybrid': typeof FeaturesExecutionModesHybridRoute
+  '/features/execution-modes_/spa': typeof FeaturesExecutionModesSpaRoute
+  '/features/routing_/posts/$postId': typeof FeaturesRoutingPostsPostIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -131,6 +151,8 @@ export interface FileRouteTypes {
     | '/features/server-context'
     | '/features/server-functions'
     | '/features/streaming'
+    | '/features/execution-modes/hybrid'
+    | '/features/execution-modes/spa'
     | '/features/routing/posts/$postId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -144,6 +166,8 @@ export interface FileRouteTypes {
     | '/features/server-context'
     | '/features/server-functions'
     | '/features/streaming'
+    | '/features/execution-modes/hybrid'
+    | '/features/execution-modes/spa'
     | '/features/routing/posts/$postId'
   id:
     | '__root__'
@@ -157,7 +181,9 @@ export interface FileRouteTypes {
     | '/features/server-context'
     | '/features/server-functions'
     | '/features/streaming'
-    | '/features/routing/posts/$postId'
+    | '/features/execution-modes_/hybrid'
+    | '/features/execution-modes_/spa'
+    | '/features/routing_/posts/$postId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -167,10 +193,13 @@ export interface RootRouteChildren {
   FeaturesExecutionModesRoute: typeof FeaturesExecutionModesRoute
   FeaturesIsomorphicRoute: typeof FeaturesIsomorphicRoute
   FeaturesMiddlewareRoute: typeof FeaturesMiddlewareRoute
-  FeaturesRoutingRoute: typeof FeaturesRoutingRouteWithChildren
+  FeaturesRoutingRoute: typeof FeaturesRoutingRoute
   FeaturesServerContextRoute: typeof FeaturesServerContextRoute
   FeaturesServerFunctionsRoute: typeof FeaturesServerFunctionsRoute
   FeaturesStreamingRoute: typeof FeaturesStreamingRoute
+  FeaturesExecutionModesHybridRoute: typeof FeaturesExecutionModesHybridRoute
+  FeaturesExecutionModesSpaRoute: typeof FeaturesExecutionModesSpaRoute
+  FeaturesRoutingPostsPostIdRoute: typeof FeaturesRoutingPostsPostIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -245,27 +274,29 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FeaturesStreamingRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/features/routing/posts/$postId': {
-      id: '/features/routing/posts/$postId'
-      path: '/posts/$postId'
+    '/features/execution-modes_/hybrid': {
+      id: '/features/execution-modes_/hybrid'
+      path: '/features/execution-modes/hybrid'
+      fullPath: '/features/execution-modes/hybrid'
+      preLoaderRoute: typeof FeaturesExecutionModesHybridRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/features/execution-modes_/spa': {
+      id: '/features/execution-modes_/spa'
+      path: '/features/execution-modes/spa'
+      fullPath: '/features/execution-modes/spa'
+      preLoaderRoute: typeof FeaturesExecutionModesSpaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/features/routing_/posts/$postId': {
+      id: '/features/routing_/posts/$postId'
+      path: '/features/routing/posts/$postId'
       fullPath: '/features/routing/posts/$postId'
       preLoaderRoute: typeof FeaturesRoutingPostsPostIdRouteImport
-      parentRoute: typeof FeaturesRoutingRoute
+      parentRoute: typeof rootRouteImport
     }
   }
 }
-
-interface FeaturesRoutingRouteChildren {
-  FeaturesRoutingPostsPostIdRoute: typeof FeaturesRoutingPostsPostIdRoute
-}
-
-const FeaturesRoutingRouteChildren: FeaturesRoutingRouteChildren = {
-  FeaturesRoutingPostsPostIdRoute: FeaturesRoutingPostsPostIdRoute,
-}
-
-const FeaturesRoutingRouteWithChildren = FeaturesRoutingRoute._addFileChildren(
-  FeaturesRoutingRouteChildren,
-)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -274,10 +305,13 @@ const rootRouteChildren: RootRouteChildren = {
   FeaturesExecutionModesRoute: FeaturesExecutionModesRoute,
   FeaturesIsomorphicRoute: FeaturesIsomorphicRoute,
   FeaturesMiddlewareRoute: FeaturesMiddlewareRoute,
-  FeaturesRoutingRoute: FeaturesRoutingRouteWithChildren,
+  FeaturesRoutingRoute: FeaturesRoutingRoute,
   FeaturesServerContextRoute: FeaturesServerContextRoute,
   FeaturesServerFunctionsRoute: FeaturesServerFunctionsRoute,
   FeaturesStreamingRoute: FeaturesStreamingRoute,
+  FeaturesExecutionModesHybridRoute: FeaturesExecutionModesHybridRoute,
+  FeaturesExecutionModesSpaRoute: FeaturesExecutionModesSpaRoute,
+  FeaturesRoutingPostsPostIdRoute: FeaturesRoutingPostsPostIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
