@@ -2,6 +2,7 @@ import { createFileRoute, redirect } from '@tanstack/react-router'
 import { useRef, useState } from 'react'
 import { ListOrdered } from 'lucide-react'
 import { AdvancedLesson } from '../components/AdvancedLesson'
+import { IsolatedScenario } from '../components/IsolatedScenario'
 import { CodeBlock } from '../components/CodeBlock'
 import { labSearchSchema } from '../utils/labModels'
 import type { FeedEvent } from '../utils/reliabilityModels'
@@ -73,13 +74,17 @@ function PaginationExperiment({
     setError('')
     try {
       if (action === 'insert') {
-        const event = await insertFeedEvent({ data: { workspace } })
+        const event = await insertFeedEvent({
+          data: { workspace, expectedGeneration: page.generation },
+        })
         setMessage(
           event.title +
             ' inserted at the beginning. Loaded rows stay unchanged; now load the next page.',
         )
       } else if (action === 'delete') {
-        const removed = await deleteNewestFeedEvent({ data: { workspace } })
+        const removed = await deleteNewestFeedEvent({
+          data: { workspace, expectedGeneration: page.generation },
+        })
         setMessage(
           removed === null
             ? 'The server feed is empty.'
@@ -116,7 +121,7 @@ function PaginationExperiment({
       setNeedsRestart(true)
       setError(
         action === 'insert' || action === 'delete'
-          ? 'The mutation could not be confirmed. Restart pagination to read the current feed before making another change.'
+          ? 'The workspace may have moved to another server, expired, or lost its connection. Restart pagination before making another change, or use the isolated walkthrough above on serverless hosting.'
           : 'Could not read this page. The cursor may be expired or invalid, or the connection failed. Restart pagination to recover.',
       )
     } finally {
@@ -143,6 +148,7 @@ function PaginationExperiment({
         },
       ]}
     >
+      <IsolatedScenario topic="pagination" />
       <section
         className="demo-panel space-y-5"
         aria-labelledby="pagination-title"
@@ -156,9 +162,10 @@ function PaginationExperiment({
           One feed, two boundaries
         </h2>
         <p className="demo-muted text-sm">
-          Each request reads the same server feed for both methods. Rows sort by
-          timestamp descending, then ID descending. Seeded pairs share
-          timestamps so the tie-breaker matters.
+          This live workspace requires one server process. Each request reads
+          the same server feed for both methods. Rows sort by timestamp
+          descending, then ID descending. Seeded pairs share timestamps so the
+          tie-breaker matters.
         </p>
         <label className="block text-sm font-semibold max-w-xs">
           Rows per page

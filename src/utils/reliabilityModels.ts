@@ -8,9 +8,23 @@ export const reservationSearchSchema = z.object({
 })
 export const reservationInputSchema = z.object({
   workspace: z.uuid(),
+  expectedGeneration: z.uuid(),
   request: z.uuid(),
   quantity: quantitySchema,
   dropResponse: z.boolean(),
+})
+export const feedMutationSchema = z.object({
+  workspace: z.uuid(),
+  expectedGeneration: z.uuid(),
+})
+export const scenarioSchema = z.object({
+  scenario: z.enum([
+    'concurrent',
+    'lost-response',
+    'payload-conflict',
+    'insert',
+    'delete',
+  ]),
 })
 export const feedInputSchema = z.object({
   workspace: z.uuid(),
@@ -28,9 +42,13 @@ export const feedCursorSchema = z.object({
 
 export type FeedEvent = { id: number; createdAt: number; title: string }
 export type Receipt = { id: number; quantity: number; remaining: number }
-export type ReservationState = { remaining: number; reservations: number }
+export type ReservationState = {
+  remaining: number
+  reservations: number
+  generation: string
+}
 export type ReservationResult = {
-  status: 'created' | 'replayed' | 'conflict' | 'sold-out'
+  status: 'created' | 'replayed' | 'conflict' | 'sold-out' | 'expired'
   receipt: Receipt | null
   state: ReservationState
 }

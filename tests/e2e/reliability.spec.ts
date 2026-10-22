@@ -4,6 +4,48 @@ import AxeBuilder from '@axe-core/playwright'
 const labUrl = (topic: string) =>
   '/features/' + topic + '?workspace=' + crypto.randomUUID()
 
+test('isolated server walkthroughs teach retries and pagination without shared request state', async ({ page }) => {
+  await page.goto(labUrl('idempotency'))
+  const run = page.getByRole('button', { name: 'Run isolated walkthrough', exact: true })
+  const result = page.getByTestId('scenario-result')
+  await run.click()
+  await expect(result).toContainText('Concurrent outcomes: created, replayed')
+  await page.getByLabel('Walkthrough scenario').selectOption('lost-response')
+  await run.click()
+  await expect(result).toContainText('Retry outcome: replayed')
+  await page.getByLabel('Walkthrough scenario').selectOption('payload-conflict')
+  await run.click()
+  await expect(result).toContainText('Retry outcome: conflict')
+  await page.goto(labUrl('pagination'))
+  await run.click()
+  await expect(result).toContainText('Next offset page: 10, 9, 8')
+  await expect(result).toContainText('Next cursor page: 9, 8, 7')
+  await page.getByLabel('Walkthrough scenario').selectOption('delete')
+  await run.click()
+  await expect(result).toContainText('Next offset page: 8, 7, 6')
+  const { violations } = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze()
+  expect(violations).toEqual([])
+})
+
+test('a different server generation pauses live writes without claiming deduplication', async ({ page }) => {
+  await page.goto(labUrl('idempotency'))
+  // Represent a server response from a workspace whose generation changed.
+  await page.route('**/_serverFn/**', async (route) => {
+    const response = await route.fetch()
+    let body = await response.text()
+    body = body.replace('"s":"created"', '"s":"expired"').replace('"s":"replayed"', '"s":"expired"')
+    await route.fulfill({ response, body })
+  })
+  await page.getByRole('button', { name: 'Send concurrent duplicates' }).click()
+  await expect(page.getByRole('alert')).toContainText('Live writes are paused')
+  await expect(page.getByRole('button', { name: 'Send / retry request', exact: true })).toBeDisabled()
+  await expect(page.getByRole('button', { name: 'New request key' })).toBeDisabled()
+  await expect(page.getByRole('status').filter({ hasText: 'one created, one replayed' })).toHaveCount(0)
+  await page.unroute('**/_serverFn/**')
+  await page.getByRole('button', { name: 'Run isolated walkthrough', exact: true }).click()
+  await expect(page.getByTestId('scenario-result')).toContainText('Concurrent outcomes: created, replayed')
+})
+
 test('idempotency deduplicates concurrent requests, rejects payload conflicts, and preserves receipts', async ({
   page,
 }, testInfo) => {
