@@ -117,6 +117,28 @@ export const learningTopics = [
     tags: ['Promise.allSettled', 'waterfalls', 'performance', 'errors'],
     prerequisites: ['streaming', 'server-functions'],
   },
+  {
+    id: 'idempotency',
+    to: '/features/idempotency',
+    title: 'Idempotent mutations & safe retries',
+    level: 'Advanced',
+    minutes: 22,
+    summary:
+      'Recover lost responses, replay receipts, and deduplicate concurrent writes with stable request keys.',
+    tags: ['idempotency', 'retries', 'transactions', 'deduplication'],
+    prerequisites: ['server-functions', 'optimistic'],
+  },
+  {
+    id: 'pagination',
+    to: '/features/pagination',
+    title: 'Cursor pagination & changing data',
+    level: 'Advanced',
+    minutes: 22,
+    summary:
+      'Compare offset and keyset boundaries as a live feed changes. Handle ties, deletions, and expired cursors.',
+    tags: ['pagination', 'keyset', 'cursors', 'consistency'],
+    prerequisites: ['routing', 'server-functions', 'caching'],
+  },
 ] as const
 
 export type LearningTopic = (typeof learningTopics)[number]
