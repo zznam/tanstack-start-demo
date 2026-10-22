@@ -15,9 +15,11 @@ import { Route as UpdatesRouteImport } from './routes/updates'
 import { Route as FeaturesAgentDxRouteImport } from './routes/features.agent-dx'
 import { Route as FeaturesCachingRouteImport } from './routes/features.caching'
 import { Route as FeaturesExecutionModesRouteImport } from './routes/features.execution-modes'
+import { Route as FeaturesIdempotencyRouteImport } from './routes/features.idempotency'
 import { Route as FeaturesIsomorphicRouteImport } from './routes/features.isomorphic'
 import { Route as FeaturesMiddlewareRouteImport } from './routes/features.middleware'
 import { Route as FeaturesOptimisticRouteImport } from './routes/features.optimistic'
+import { Route as FeaturesPaginationRouteImport } from './routes/features.pagination'
 import { Route as FeaturesParallelRouteImport } from './routes/features.parallel'
 import { Route as FeaturesRoutingRouteImport } from './routes/features.routing'
 import { Route as FeaturesServerContextRouteImport } from './routes/features.server-context'
@@ -57,6 +59,11 @@ const FeaturesExecutionModesRoute = FeaturesExecutionModesRouteImport.update({
   path: '/features/execution-modes',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FeaturesIdempotencyRoute = FeaturesIdempotencyRouteImport.update({
+  id: '/features/idempotency',
+  path: '/features/idempotency',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FeaturesIsomorphicRoute = FeaturesIsomorphicRouteImport.update({
   id: '/features/isomorphic',
   path: '/features/isomorphic',
@@ -70,6 +77,11 @@ const FeaturesMiddlewareRoute = FeaturesMiddlewareRouteImport.update({
 const FeaturesOptimisticRoute = FeaturesOptimisticRouteImport.update({
   id: '/features/optimistic',
   path: '/features/optimistic',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FeaturesPaginationRoute = FeaturesPaginationRouteImport.update({
+  id: '/features/pagination',
+  path: '/features/pagination',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FeaturesParallelRoute = FeaturesParallelRouteImport.update({
@@ -123,9 +135,11 @@ export interface FileRoutesByFullPath {
   '/features/agent-dx': typeof FeaturesAgentDxRoute
   '/features/caching': typeof FeaturesCachingRoute
   '/features/execution-modes': typeof FeaturesExecutionModesRoute
+  '/features/idempotency': typeof FeaturesIdempotencyRoute
   '/features/isomorphic': typeof FeaturesIsomorphicRoute
   '/features/middleware': typeof FeaturesMiddlewareRoute
   '/features/optimistic': typeof FeaturesOptimisticRoute
+  '/features/pagination': typeof FeaturesPaginationRoute
   '/features/parallel': typeof FeaturesParallelRoute
   '/features/routing': typeof FeaturesRoutingRoute
   '/features/server-context': typeof FeaturesServerContextRoute
@@ -142,9 +156,11 @@ export interface FileRoutesByTo {
   '/features/agent-dx': typeof FeaturesAgentDxRoute
   '/features/caching': typeof FeaturesCachingRoute
   '/features/execution-modes': typeof FeaturesExecutionModesRoute
+  '/features/idempotency': typeof FeaturesIdempotencyRoute
   '/features/isomorphic': typeof FeaturesIsomorphicRoute
   '/features/middleware': typeof FeaturesMiddlewareRoute
   '/features/optimistic': typeof FeaturesOptimisticRoute
+  '/features/pagination': typeof FeaturesPaginationRoute
   '/features/parallel': typeof FeaturesParallelRoute
   '/features/routing': typeof FeaturesRoutingRoute
   '/features/server-context': typeof FeaturesServerContextRoute
@@ -162,9 +178,11 @@ export interface FileRoutesById {
   '/features/agent-dx': typeof FeaturesAgentDxRoute
   '/features/caching': typeof FeaturesCachingRoute
   '/features/execution-modes': typeof FeaturesExecutionModesRoute
+  '/features/idempotency': typeof FeaturesIdempotencyRoute
   '/features/isomorphic': typeof FeaturesIsomorphicRoute
   '/features/middleware': typeof FeaturesMiddlewareRoute
   '/features/optimistic': typeof FeaturesOptimisticRoute
+  '/features/pagination': typeof FeaturesPaginationRoute
   '/features/parallel': typeof FeaturesParallelRoute
   '/features/routing': typeof FeaturesRoutingRoute
   '/features/server-context': typeof FeaturesServerContextRoute
@@ -183,9 +201,11 @@ export interface FileRouteTypes {
     | '/features/agent-dx'
     | '/features/caching'
     | '/features/execution-modes'
+    | '/features/idempotency'
     | '/features/isomorphic'
     | '/features/middleware'
     | '/features/optimistic'
+    | '/features/pagination'
     | '/features/parallel'
     | '/features/routing'
     | '/features/server-context'
@@ -202,9 +222,11 @@ export interface FileRouteTypes {
     | '/features/agent-dx'
     | '/features/caching'
     | '/features/execution-modes'
+    | '/features/idempotency'
     | '/features/isomorphic'
     | '/features/middleware'
     | '/features/optimistic'
+    | '/features/pagination'
     | '/features/parallel'
     | '/features/routing'
     | '/features/server-context'
@@ -221,9 +243,11 @@ export interface FileRouteTypes {
     | '/features/agent-dx'
     | '/features/caching'
     | '/features/execution-modes'
+    | '/features/idempotency'
     | '/features/isomorphic'
     | '/features/middleware'
     | '/features/optimistic'
+    | '/features/pagination'
     | '/features/parallel'
     | '/features/routing'
     | '/features/server-context'
@@ -241,9 +265,11 @@ export interface RootRouteChildren {
   FeaturesAgentDxRoute: typeof FeaturesAgentDxRoute
   FeaturesCachingRoute: typeof FeaturesCachingRoute
   FeaturesExecutionModesRoute: typeof FeaturesExecutionModesRoute
+  FeaturesIdempotencyRoute: typeof FeaturesIdempotencyRoute
   FeaturesIsomorphicRoute: typeof FeaturesIsomorphicRoute
   FeaturesMiddlewareRoute: typeof FeaturesMiddlewareRoute
   FeaturesOptimisticRoute: typeof FeaturesOptimisticRoute
+  FeaturesPaginationRoute: typeof FeaturesPaginationRoute
   FeaturesParallelRoute: typeof FeaturesParallelRoute
   FeaturesRoutingRoute: typeof FeaturesRoutingRoute
   FeaturesServerContextRoute: typeof FeaturesServerContextRoute
@@ -298,6 +324,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FeaturesExecutionModesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/features/idempotency': {
+      id: '/features/idempotency'
+      path: '/features/idempotency'
+      fullPath: '/features/idempotency'
+      preLoaderRoute: typeof FeaturesIdempotencyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/features/isomorphic': {
       id: '/features/isomorphic'
       path: '/features/isomorphic'
@@ -317,6 +350,13 @@ declare module '@tanstack/react-router' {
       path: '/features/optimistic'
       fullPath: '/features/optimistic'
       preLoaderRoute: typeof FeaturesOptimisticRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/features/pagination': {
+      id: '/features/pagination'
+      path: '/features/pagination'
+      fullPath: '/features/pagination'
+      preLoaderRoute: typeof FeaturesPaginationRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/features/parallel': {
@@ -385,9 +425,11 @@ const rootRouteChildren: RootRouteChildren = {
   FeaturesAgentDxRoute: FeaturesAgentDxRoute,
   FeaturesCachingRoute: FeaturesCachingRoute,
   FeaturesExecutionModesRoute: FeaturesExecutionModesRoute,
+  FeaturesIdempotencyRoute: FeaturesIdempotencyRoute,
   FeaturesIsomorphicRoute: FeaturesIsomorphicRoute,
   FeaturesMiddlewareRoute: FeaturesMiddlewareRoute,
   FeaturesOptimisticRoute: FeaturesOptimisticRoute,
+  FeaturesPaginationRoute: FeaturesPaginationRoute,
   FeaturesParallelRoute: FeaturesParallelRoute,
   FeaturesRoutingRoute: FeaturesRoutingRoute,
   FeaturesServerContextRoute: FeaturesServerContextRoute,
