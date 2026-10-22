@@ -2,6 +2,7 @@ import { createFileRoute, redirect } from '@tanstack/react-router'
 import { useRef, useState } from 'react'
 import { KeyRound, Repeat2 } from 'lucide-react'
 import { AdvancedLesson } from '../components/AdvancedLesson'
+import { IsolatedScenario } from '../components/IsolatedScenario'
 import { CodeBlock } from '../components/CodeBlock'
 import { reservationSearchSchema } from '../utils/reliabilityModels'
 import type {
@@ -54,6 +55,7 @@ function ReservationExperiment({ initial }: { initial: ReservationState }) {
   const [pending, setPending] = useState(false)
   const [dropResponse, setDropResponse] = useState(false)
   const [uncertain, setUncertain] = useState(false)
+  const [scopeLost, setScopeLost] = useState(false)
   const [state, setState] = useState(initial)
   const [result, setResult] = useState<ReservationResult | null>(null)
   const [error, setError] = useState('')
@@ -75,11 +77,25 @@ function ReservationExperiment({ initial }: { initial: ReservationState }) {
               request: request!,
               quantity,
               dropResponse,
+              expectedGeneration: initial.generation,
             },
           }),
         ),
       )
       const last = results[results.length - 1]!
+      if (results.some((item) => item.status === 'expired')) {
+        const confirmed = results.find((item) => item.status !== 'expired')
+        if (confirmed) {
+          setState(confirmed.state)
+          setResult(confirmed)
+        }
+        setScopeLost(true)
+        setUncertain(true)
+        setError(
+          'The workspace expired or a request reached a different server. Live writes are paused to avoid creating a duplicate in another store. A concurrent request may have committed. Use the isolated walkthrough above; a shared durable store is required across servers.',
+        )
+        return
+      }
       setResult(last)
       setState(last.state)
       setUncertain(false)
@@ -90,9 +106,12 @@ function ReservationExperiment({ initial }: { initial: ReservationState }) {
         conflict:
           'Key conflict: this key already belongs to a different quantity. Restore that quantity or start a new request.',
         'sold-out': 'Not enough seats remain. No reservation was created.',
+        expired: 'Workspace unavailable.',
       }
       setMessage(
-        copies === 2 && results.some((item) => item.status === 'created')
+        copies === 2 &&
+          results.filter((item) => item.status === 'created').length === 1 &&
+          results.filter((item) => item.status === 'replayed').length === 1
           ? 'Concurrent requests: one created, one replayed. A single reservation was committed.'
           : messages[last.status],
       )
@@ -125,6 +144,7 @@ function ReservationExperiment({ initial }: { initial: ReservationState }) {
         },
       ]}
     >
+      <IsolatedScenario topic="idempotency" />
       <section
         className="demo-panel space-y-5"
         aria-labelledby="reservation-title"
@@ -138,9 +158,10 @@ function ReservationExperiment({ initial }: { initial: ReservationState }) {
           Reserve workshop seats
         </h2>
         <p className="demo-muted text-sm">
-          A real server function reserves from 20 sample seats. No payment or
-          account is involved. The 350 ms delay and response-loss switch are
-          deliberate fault injection.
+          This live workspace requires one server process. A real server
+          function reserves from 20 sample seats. No payment or account is
+          involved. The 350 ms delay and response-loss switch are deliberate
+          fault injection.
         </p>
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="lab-snapshot">
@@ -238,7 +259,7 @@ function ReservationExperiment({ initial }: { initial: ReservationState }) {
           <button
             type="button"
             className="demo-button"
-            disabled={pending}
+            disabled={pending || scopeLost}
             onClick={() => void send(1)}
           >
             Send / retry request

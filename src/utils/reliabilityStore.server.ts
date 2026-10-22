@@ -54,6 +54,7 @@ export function createReliabilityStore({
   const snapshot = (item: Workspace) => ({
     remaining: item.remaining,
     reservations: item.receipts.size,
+    generation: item.generation,
   })
 
   return {
@@ -64,8 +65,11 @@ export function createReliabilityStore({
       workspace: string,
       request: string,
       quantity: number,
+      expectedGeneration?: string,
     ): ReservationResult {
       const item = get(workspace)
+      if (expectedGeneration && expectedGeneration !== item.generation)
+        return { status: 'expired', receipt: null, state: snapshot(item) }
       const previous = item.receipts.get(request)
       if (previous) {
         return {
@@ -143,6 +147,7 @@ export function createReliabilityStore({
           ).toString('base64url')
         : cursor
       return {
+        generation: item.generation,
         cursorItems,
         offsetItems: item.events
           .slice(offset, offset + limit)
@@ -154,8 +159,10 @@ export function createReliabilityStore({
         total: item.events.length,
       }
     },
-    insertEvent(workspace: string) {
+    insertEvent(workspace: string, expectedGeneration?: string) {
       const item = get(workspace)
+      if (expectedGeneration && expectedGeneration !== item.generation)
+        throw new Error('Workspace moved or expired. Restart pagination.')
       const event = {
         id: ++item.sequence,
         createdAt: Math.max(now(), item.events[0]?.createdAt ?? 0),
@@ -165,8 +172,10 @@ export function createReliabilityStore({
       item.events = item.events.slice(0, 40)
       return { ...event }
     },
-    deleteNewestEvent(workspace: string) {
+    deleteNewestEvent(workspace: string, expectedGeneration?: string) {
       const item = get(workspace)
+      if (expectedGeneration && expectedGeneration !== item.generation)
+        throw new Error('Workspace moved or expired. Restart pagination.')
       return item.events.shift()?.id ?? null
     },
   }

@@ -1,6 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { randomUUID } from 'node:crypto'
+import { runReliabilityScenario } from '../src/utils/reliabilityScenarios.server.ts'
 import { createReliabilityStore } from '../src/utils/reliabilityStore.server.ts'
 import {
   feedInputSchema,
@@ -8,12 +9,17 @@ import {
   reservationSearchSchema,
 } from '../src/utils/reliabilityModels.ts'
 
+function counts(state: { remaining: number; reservations: number }) {
+  return { remaining: state.remaining, reservations: state.reservations }
+}
+
 test('reliability RPCs validate scope, quantity, page bounds and cursor size', () => {
   const base = {
     workspace: randomUUID(),
     request: randomUUID(),
     quantity: 2,
     dropResponse: false,
+    expectedGeneration: randomUUID(),
   }
   assert.ok(reservationInputSchema.safeParse(base).success)
   for (const quantity of [0, -1, 1.5, 6, '2', Infinity])
@@ -67,7 +73,7 @@ test('duplicate and competing requests commit only once and preserve the origina
     results.filter((result) => result.status === 'replayed').length,
     9,
   )
-  assert.deepEqual(store.readReservations(workspace), {
+  assert.deepEqual(counts(store.readReservations(workspace)), {
     remaining: 18,
     reservations: 1,
   })
@@ -92,7 +98,7 @@ test('sold out writes do not allocate receipts; successful keys still replay at 
     store.reserve(workspace, randomUUID(), 5)
   assert.equal(store.reserve(workspace, randomUUID(), 1).status, 'sold-out')
   assert.equal(store.reserve(workspace, first, 5).status, 'replayed')
-  assert.deepEqual(store.readReservations(workspace), {
+  assert.deepEqual(counts(store.readReservations(workspace)), {
     remaining: 0,
     reservations: 4,
   })
@@ -234,7 +240,7 @@ test('cursors reject malformed, foreign and expired generations with a restart p
   const restarted = store.readFeed({ workspace, offset: 0, limit: 3 })
   assert.equal(restarted.cursorItems.length, 3)
   assert.notEqual(restarted.nextCursor, first.nextCursor)
-  assert.deepEqual(store.readReservations(workspace), {
+  assert.deepEqual(counts(store.readReservations(workspace)), {
     remaining: 20,
     reservations: 0,
   })
@@ -269,4 +275,58 @@ test('workspace eviction expires receipts and cursors; feeds and empty pages sta
   assert.deepEqual(empty.offsetItems, [])
   assert.equal(empty.cursorHasMore, false)
   assert.equal(empty.nextCursor, undefined)
+})
+
+test('generation guards reject writes on another process and after expiration', () => {
+  let time = 0
+  const a = createReliabilityStore({ now: () => time, ttlMs: 100 })
+  const b = createReliabilityStore()
+  const workspace = randomUUID(),
+    request = randomUUID()
+  const generation = a.readReservations(workspace).generation
+  assert.equal(a.reserve(workspace, request, 2, generation).status, 'created')
+  assert.equal(b.reserve(workspace, request, 2, generation).status, 'expired')
+  assert.deepEqual(counts(b.readReservations(workspace)), {
+    remaining: 20,
+    reservations: 0,
+  })
+  assert.throws(
+    () => b.insertEvent(workspace, generation),
+    /Workspace moved or expired/,
+  )
+  assert.throws(
+    () => b.deleteNewestEvent(workspace, generation),
+    /Workspace moved or expired/,
+  )
+  assert.equal(b.readFeed({ workspace, offset: 0, limit: 3 }).total, 12)
+  time = 100
+  assert.equal(a.reserve(workspace, request, 2, generation).status, 'expired')
+  assert.equal(a.readReservations(workspace).reservations, 0)
+})
+
+test('isolated walkthroughs execute complete, independent server scenarios', async () => {
+  for (let run = 0; run < 2; run++) {
+    const concurrent = await runReliabilityScenario('concurrent')
+    assert.deepEqual(concurrent.steps, [
+      'Concurrent outcomes: created, replayed',
+      'Committed reservations: 1',
+      'Seats remaining: 18',
+    ])
+  }
+  assert.ok(
+    (await runReliabilityScenario('lost-response')).steps.includes(
+      'Retry outcome: replayed',
+    ),
+  )
+  assert.ok(
+    (await runReliabilityScenario('payload-conflict')).steps.includes(
+      'Retry outcome: conflict',
+    ),
+  )
+  const inserted = await runReliabilityScenario('insert')
+  assert.ok(inserted.steps.includes('Next offset page: 10, 9, 8'))
+  assert.ok(inserted.steps.includes('Next cursor page: 9, 8, 7'))
+  const deleted = await runReliabilityScenario('delete')
+  assert.ok(deleted.steps.includes('Next offset page: 8, 7, 6'))
+  assert.ok(deleted.steps.includes('Next cursor page: 9, 8, 7'))
 })
