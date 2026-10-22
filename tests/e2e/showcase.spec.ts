@@ -139,14 +139,14 @@ test('clipboard and mutation failures show recoverable feedback', async ({ page 
   await expect(like).toBeEnabled()
 })
 
-test('SSR modes and progressive streaming are visible in the HTTP response', async ({ request }) => {
+test('SSR modes and progressive streaming are visible in the HTTP response', async ({ request, baseURL }) => {
   const client = await (await request.get('/features/execution-modes/spa')).text()
   expect(client).not.toContain('<h1 class="demo-title">Live client-only route')
   expect(client).not.toContain('Browser loader')
   const hybrid = await (await request.get('/features/execution-modes/hybrid')).text()
   expect(hybrid).toContain('Server loader (initial request)')
   expect(hybrid).not.toContain('<h1 class="demo-title">Live data-only SSR route')
-  const response = await fetch('http://127.0.0.1:3100/features/streaming', { headers: { 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36' } })
+  const response = await fetch(new URL('/features/streaming', baseURL), { headers: { 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36' } })
   const reader = response.body!.getReader()
   const decoder = new TextDecoder()
   let html = ''
