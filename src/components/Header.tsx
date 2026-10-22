@@ -116,12 +116,15 @@ export default function Header() {
               </div>
             ))}
           </div>
-          <div className="flex gap-5 border-t border-[var(--line)] mt-4 pt-4 px-3 text-sm">
+          <div className="flex flex-wrap gap-5 border-t border-[var(--line)] mt-4 pt-4 px-3 text-sm">
             <Link to="/" hash="topics" onClick={() => setMobileMenuOpen(false)}>
               All topics
             </Link>
             <Link to="/about" onClick={() => setMobileMenuOpen(false)}>
               About the project
+            </Link>
+            <Link to="/updates" onClick={() => setMobileMenuOpen(false)}>
+              What’s new
             </Link>
           </div>
         </div>

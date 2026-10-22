@@ -1,5 +1,4 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { useState } from 'react'
 import {
   ArrowRight,
   BookOpen,
@@ -17,11 +16,12 @@ import {
   learningTopics,
   filterTopics,
 } from '../utils/learningTopics'
-import type { LearningLevel } from '../utils/learningTopics'
+import { catalogSearchSchema } from '../utils/catalogSearch'
 import { useLearningProgress } from '../utils/useLearningProgress'
 import { TopicLink } from '../components/TopicLink'
 
 export const Route = createFileRoute('/')({
+  validateSearch: catalogSearchSchema,
   loader: () => fetchDashboardStats(),
   head: () => ({
     meta: [
@@ -29,7 +29,7 @@ export const Route = createFileRoute('/')({
       {
         name: 'description',
         content:
-          'Explore 11 hands-on TanStack Start topics, from typed routing to cache invalidation, optimistic concurrency, and resilient parallel loading.',
+          'Explore hands-on TanStack Start topics, from typed routing to cache invalidation, optimistic concurrency, and resilient parallel loading.',
       },
     ],
   }),
@@ -38,17 +38,17 @@ export const Route = createFileRoute('/')({
 
 function HomePage() {
   const stats = Route.useLoaderData()
-  const [query, setQuery] = useState('')
-  const [level, setLevel] = useState<LearningLevel>('All topics')
-  const [incompleteOnly, setIncompleteOnly] = useState(false)
+  const search = Route.useSearch()
+  const navigate = Route.useNavigate()
+  const query = search.q ?? ''
+  const level = search.level ?? 'All topics'
+  const incompleteOnly = search.incomplete ?? false
+  const updateFilters = (patch: Partial<typeof search>, replace = false) =>
+    navigate({ search: (previous) => ({ ...previous, ...patch }), replace, resetScroll: false })
   const { completed, toggle } = useLearningProgress()
   const topics = filterTopics(query, level, incompleteOnly, completed)
   const next = learningTopics.find((topic) => !completed.includes(topic.id))
-  const reset = () => {
-    setQuery('')
-    setLevel('All topics')
-    setIncompleteOnly(false)
-  }
+  const reset = () => navigate({ search: {}, resetScroll: false })
 
   return (
     <div className="page-wrap pb-16 pt-8 sm:pt-12">
@@ -76,12 +76,10 @@ function HomePage() {
               type="button"
               className="demo-button demo-button-secondary"
               onClick={() => {
-                setLevel('Advanced')
-                setQuery('')
-                setIncompleteOnly(false)
+                void updateFilters({ level: 'Advanced', q: undefined, incomplete: undefined })
                 document
                   .getElementById('topics')
-                  ?.scrollIntoView({ behavior: 'smooth' })
+                  ?.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' })
               }}
             >
               <GraduationCap className="size-4" />
@@ -158,9 +156,9 @@ function HomePage() {
               Choose your next experiment
             </h2>
           </div>
-          <span className="demo-pill">
-            <BookOpen className="size-4" />3 new advanced labs
-          </span>
+          <Link to="/updates" className="demo-pill no-underline">
+            <BookOpen className="size-4" />What’s new
+          </Link>
         </div>
         <div className="topic-controls mb-6">
           <div className="relative">
@@ -171,14 +169,15 @@ function HomePage() {
               className="demo-input text-sm"
               placeholder="Search topics, concepts, or APIs…"
               value={query}
-              onChange={(event) => setQuery(event.target.value)}
+              maxLength={120}
+              onChange={(event) => void updateFilters({ q: event.target.value || undefined }, true)}
             />
           </div>
           <label className="flex items-center gap-2 text-sm demo-muted">
             <input
               type="checkbox"
               checked={incompleteOnly}
-              onChange={(event) => setIncompleteOnly(event.target.checked)}
+              onChange={(event) => void updateFilters({ incomplete: event.target.checked || undefined })}
               className="size-4 accent-[var(--palm)]"
             />
             Hide completed
@@ -195,7 +194,7 @@ function HomePage() {
               type="button"
               className={`topic-filter ${level === item ? 'is-selected' : ''}`}
               aria-pressed={level === item}
-              onClick={() => setLevel(item)}
+              onClick={() => void updateFilters({ level: item === 'All topics' ? undefined : item })}
             >
               {item}
               <span>
@@ -207,6 +206,9 @@ function HomePage() {
             </button>
           ))}
         </div>
+        {(query || level !== 'All topics' || incompleteOnly) && topics.length > 0 && (
+          <button type="button" className="text-sm underline mb-4" onClick={reset}>Reset topic filters</button>
+        )}
         <p role="status" className="text-xs demo-muted mb-5">
           {topics.length} {topics.length === 1 ? 'topic' : 'topics'} shown
           {query.trim() ? ` for “${query.trim()}”` : ''}

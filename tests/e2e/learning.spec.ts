@@ -3,6 +3,40 @@ import AxeBuilder from '@axe-core/playwright'
 
 const workspace = () => crypto.randomUUID()
 
+test('catalog URLs preserve filters through reload, sharing and browser history', async ({ page, context }) => {
+  await page.goto('/')
+  await page.getByRole('searchbox', { name: 'Search learning topics' }).fill('versioning')
+  await page.getByRole('button', { name: /^Advanced/ }).click()
+  await page.getByLabel('Hide completed').check()
+  await expect(page).toHaveURL(/incomplete=true/)
+  const sharedUrl = page.url()
+  await page.reload()
+  await expect(page.getByRole('searchbox')).toHaveValue('versioning')
+  await expect(page.getByLabel('Hide completed')).toBeChecked()
+  await expect(page.locator('#topics article')).toHaveCount(1)
+  await page.getByRole('button', { name: 'Reset topic filters' }).click()
+  await expect(page.locator('#topics article')).toHaveCount(11)
+  await page.goBack()
+  await expect(page.getByRole('searchbox')).toHaveValue('versioning')
+  await expect(page.getByLabel('Hide completed')).toBeChecked()
+  const shared = await context.newPage()
+  await shared.goto(sharedUrl)
+  await expect(shared.locator('#topics article')).toHaveCount(1)
+  await shared.close()
+  await page.goto('/?q=%5B1%5D&level=Expert&incomplete=invalid')
+  await expect(page.locator('#topics article')).toHaveCount(11)
+})
+
+test('recent changes connect to working lessons from the navigation menu', async ({ page }) => {
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Toggle navigation menu' }).click()
+  await page.locator('#topic-navigation').getByRole('link', { name: 'What’s new' }).click()
+  await expect(page.getByRole('heading', { name: 'What’s new in the lab' })).toBeVisible()
+  await expect(page.getByRole('list', { name: 'Recent app updates' }).locator(':scope > li')).toHaveCount(3)
+  await page.getByRole('link', { name: 'Caching & revalidation', exact: true }).click()
+  await expect(page.getByTestId('cache-loader')).toContainText('Revision 1')
+})
+
 test('catalog filters, progress and next step survive reload', async ({
   page,
 }) => {
@@ -215,6 +249,7 @@ test('parallel loading measures real service timings and isolates optional failu
 
 for (const route of [
   '/',
+  '/updates',
   '/features/caching',
   '/features/optimistic',
   '/features/parallel',
