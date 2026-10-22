@@ -139,6 +139,16 @@ export const learningTopics = [
     tags: ['pagination', 'keyset', 'cursors', 'consistency'],
     prerequisites: ['routing', 'server-functions', 'caching'],
   },
+  {
+    id: 'resilience',
+    to: '/features/resilience',
+    title: 'Circuit breakers & retry budgets',
+    level: 'Advanced',
+    minutes: 25,
+    summary: 'Protect shipping quotes at checkout with bounded retries, total deadlines, and recovery probes.',
+    tags: ['circuit breaker', 'timeouts', 'backoff', 'shipping', 'checkout'],
+    prerequisites: ['parallel', 'idempotency'],
+  },
 ] as const
 
 export type LearningTopic = (typeof learningTopics)[number]

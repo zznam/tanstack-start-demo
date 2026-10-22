@@ -12,7 +12,7 @@ import { runParallelLab } from '../src/utils/parallelLab.ts'
 const workspace = '78c771b0-f524-4c62-abdd-8f1cfb181323'
 
 test('catalog search combines words, level and completion filters', () => {
-  assert.equal(learningTopics.length, 13)
+  assert.equal(learningTopics.length, 14)
   assert.equal(
     new Set(learningTopics.map((topic) => topic.id)).size,
     learningTopics.length,
@@ -21,7 +21,7 @@ test('catalog search combines words, level and completion filters', () => {
     filterTopics('  server INVALIDATION ', 'Advanced', false, []).at(0)?.id,
     'caching',
   )
-  assert.equal(filterTopics('', 'Advanced', true, ['caching']).length, 4)
+  assert.equal(filterTopics('', 'Advanced', true, ['caching']).length, 5)
   assert.equal(
     filterTopics('no-such-concept', 'All topics', false, []).length,
     0,

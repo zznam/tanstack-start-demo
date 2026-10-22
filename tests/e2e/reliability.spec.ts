@@ -302,7 +302,9 @@ test('new labs are discoverable, linked in sequence, and track completion', asyn
   await page
     .getByRole('button', { name: 'Mark as complete', exact: true })
     .click()
-  await page.getByRole('link', { name: 'Back to topics', exact: true }).click()
+  await page.getByRole('link', { name: 'Next lab', exact: true }).click()
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Circuit breakers & retry budgets')
+  await page.getByRole('link', { name: 'All learning topics', exact: true }).click()
   await expect(
     page.getByRole('progressbar', { name: 'Learning progress' }),
   ).toHaveAttribute('value', '2')
