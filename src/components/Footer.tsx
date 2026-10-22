@@ -9,10 +9,10 @@ export default function Footer() {
           <div className="md:col-span-2 space-y-3">
             <div className="flex items-center gap-2 font-bold text-base text-[var(--sea-ink)]">
               <span className="h-2.5 w-2.5 rounded-full bg-[linear-gradient(90deg,#56c6be,#7ed3bf)]" />
-              TanStack Start 1.0 Demo Showcase
+              TanStack Start Learning Lab
             </div>
             <p className="text-[var(--sea-ink-soft)] text-xs leading-relaxed max-w-md">
-              A comprehensive live demonstration showcasing every core capability from Tanner Linsley's{' '}
+              Hands-on framework lessons inspired by the{' '}
               <a
                 href="https://tanstack.com/blog/tanstack-start-1-0"
                 target="_blank"
@@ -21,7 +21,7 @@ export default function Footer() {
               >
                 TanStack Start 1.0 is Stable
               </a>{' '}
-              announcement: type-safe routing, server functions, full-stack middleware, isomorphic environment functions, streaming defer, and AI agent guardrails.
+              announcement, with advanced labs for caching, optimistic concurrency, and resilient parallel loading.
             </p>
             <div className="flex items-center gap-3 text-xs text-[var(--sea-ink-soft)] pt-1">
               <span className="inline-flex items-center gap-1">
@@ -134,7 +134,7 @@ export default function Footer() {
 
         <div className="border-t border-[var(--line)] pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-[var(--sea-ink-soft)] gap-2">
           <p className="m-0">
-            Built for pair programming exploration of TanStack Start 1.0.
+            Learn by experimenting with real full-stack behavior.
           </p>
           <div className="flex items-center gap-1">
             <span>Powered by</span>

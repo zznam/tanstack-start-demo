@@ -12,9 +12,12 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as FeaturesAgentDxRouteImport } from './routes/features.agent-dx'
+import { Route as FeaturesCachingRouteImport } from './routes/features.caching'
 import { Route as FeaturesExecutionModesRouteImport } from './routes/features.execution-modes'
 import { Route as FeaturesIsomorphicRouteImport } from './routes/features.isomorphic'
 import { Route as FeaturesMiddlewareRouteImport } from './routes/features.middleware'
+import { Route as FeaturesOptimisticRouteImport } from './routes/features.optimistic'
+import { Route as FeaturesParallelRouteImport } from './routes/features.parallel'
 import { Route as FeaturesRoutingRouteImport } from './routes/features.routing'
 import { Route as FeaturesServerContextRouteImport } from './routes/features.server-context'
 import { Route as FeaturesServerFunctionsRouteImport } from './routes/features.server-functions'
@@ -38,6 +41,11 @@ const FeaturesAgentDxRoute = FeaturesAgentDxRouteImport.update({
   path: '/features/agent-dx',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FeaturesCachingRoute = FeaturesCachingRouteImport.update({
+  id: '/features/caching',
+  path: '/features/caching',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FeaturesExecutionModesRoute = FeaturesExecutionModesRouteImport.update({
   id: '/features/execution-modes',
   path: '/features/execution-modes',
@@ -51,6 +59,16 @@ const FeaturesIsomorphicRoute = FeaturesIsomorphicRouteImport.update({
 const FeaturesMiddlewareRoute = FeaturesMiddlewareRouteImport.update({
   id: '/features/middleware',
   path: '/features/middleware',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FeaturesOptimisticRoute = FeaturesOptimisticRouteImport.update({
+  id: '/features/optimistic',
+  path: '/features/optimistic',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FeaturesParallelRoute = FeaturesParallelRouteImport.update({
+  id: '/features/parallel',
+  path: '/features/parallel',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FeaturesRoutingRoute = FeaturesRoutingRouteImport.update({
@@ -96,9 +114,12 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/features/agent-dx': typeof FeaturesAgentDxRoute
+  '/features/caching': typeof FeaturesCachingRoute
   '/features/execution-modes': typeof FeaturesExecutionModesRoute
   '/features/isomorphic': typeof FeaturesIsomorphicRoute
   '/features/middleware': typeof FeaturesMiddlewareRoute
+  '/features/optimistic': typeof FeaturesOptimisticRoute
+  '/features/parallel': typeof FeaturesParallelRoute
   '/features/routing': typeof FeaturesRoutingRoute
   '/features/server-context': typeof FeaturesServerContextRoute
   '/features/server-functions': typeof FeaturesServerFunctionsRoute
@@ -111,9 +132,12 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/features/agent-dx': typeof FeaturesAgentDxRoute
+  '/features/caching': typeof FeaturesCachingRoute
   '/features/execution-modes': typeof FeaturesExecutionModesRoute
   '/features/isomorphic': typeof FeaturesIsomorphicRoute
   '/features/middleware': typeof FeaturesMiddlewareRoute
+  '/features/optimistic': typeof FeaturesOptimisticRoute
+  '/features/parallel': typeof FeaturesParallelRoute
   '/features/routing': typeof FeaturesRoutingRoute
   '/features/server-context': typeof FeaturesServerContextRoute
   '/features/server-functions': typeof FeaturesServerFunctionsRoute
@@ -127,9 +151,12 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/features/agent-dx': typeof FeaturesAgentDxRoute
+  '/features/caching': typeof FeaturesCachingRoute
   '/features/execution-modes': typeof FeaturesExecutionModesRoute
   '/features/isomorphic': typeof FeaturesIsomorphicRoute
   '/features/middleware': typeof FeaturesMiddlewareRoute
+  '/features/optimistic': typeof FeaturesOptimisticRoute
+  '/features/parallel': typeof FeaturesParallelRoute
   '/features/routing': typeof FeaturesRoutingRoute
   '/features/server-context': typeof FeaturesServerContextRoute
   '/features/server-functions': typeof FeaturesServerFunctionsRoute
@@ -144,9 +171,12 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/features/agent-dx'
+    | '/features/caching'
     | '/features/execution-modes'
     | '/features/isomorphic'
     | '/features/middleware'
+    | '/features/optimistic'
+    | '/features/parallel'
     | '/features/routing'
     | '/features/server-context'
     | '/features/server-functions'
@@ -159,9 +189,12 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/features/agent-dx'
+    | '/features/caching'
     | '/features/execution-modes'
     | '/features/isomorphic'
     | '/features/middleware'
+    | '/features/optimistic'
+    | '/features/parallel'
     | '/features/routing'
     | '/features/server-context'
     | '/features/server-functions'
@@ -174,9 +207,12 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/features/agent-dx'
+    | '/features/caching'
     | '/features/execution-modes'
     | '/features/isomorphic'
     | '/features/middleware'
+    | '/features/optimistic'
+    | '/features/parallel'
     | '/features/routing'
     | '/features/server-context'
     | '/features/server-functions'
@@ -190,9 +226,12 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   FeaturesAgentDxRoute: typeof FeaturesAgentDxRoute
+  FeaturesCachingRoute: typeof FeaturesCachingRoute
   FeaturesExecutionModesRoute: typeof FeaturesExecutionModesRoute
   FeaturesIsomorphicRoute: typeof FeaturesIsomorphicRoute
   FeaturesMiddlewareRoute: typeof FeaturesMiddlewareRoute
+  FeaturesOptimisticRoute: typeof FeaturesOptimisticRoute
+  FeaturesParallelRoute: typeof FeaturesParallelRoute
   FeaturesRoutingRoute: typeof FeaturesRoutingRoute
   FeaturesServerContextRoute: typeof FeaturesServerContextRoute
   FeaturesServerFunctionsRoute: typeof FeaturesServerFunctionsRoute
@@ -225,6 +264,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FeaturesAgentDxRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/features/caching': {
+      id: '/features/caching'
+      path: '/features/caching'
+      fullPath: '/features/caching'
+      preLoaderRoute: typeof FeaturesCachingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/features/execution-modes': {
       id: '/features/execution-modes'
       path: '/features/execution-modes'
@@ -244,6 +290,20 @@ declare module '@tanstack/react-router' {
       path: '/features/middleware'
       fullPath: '/features/middleware'
       preLoaderRoute: typeof FeaturesMiddlewareRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/features/optimistic': {
+      id: '/features/optimistic'
+      path: '/features/optimistic'
+      fullPath: '/features/optimistic'
+      preLoaderRoute: typeof FeaturesOptimisticRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/features/parallel': {
+      id: '/features/parallel'
+      path: '/features/parallel'
+      fullPath: '/features/parallel'
+      preLoaderRoute: typeof FeaturesParallelRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/features/routing': {
@@ -302,9 +362,12 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   FeaturesAgentDxRoute: FeaturesAgentDxRoute,
+  FeaturesCachingRoute: FeaturesCachingRoute,
   FeaturesExecutionModesRoute: FeaturesExecutionModesRoute,
   FeaturesIsomorphicRoute: FeaturesIsomorphicRoute,
   FeaturesMiddlewareRoute: FeaturesMiddlewareRoute,
+  FeaturesOptimisticRoute: FeaturesOptimisticRoute,
+  FeaturesParallelRoute: FeaturesParallelRoute,
   FeaturesRoutingRoute: FeaturesRoutingRoute,
   FeaturesServerContextRoute: FeaturesServerContextRoute,
   FeaturesServerFunctionsRoute: FeaturesServerFunctionsRoute,

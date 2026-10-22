@@ -12,13 +12,13 @@ export function CodeBlock({ code, title, language = 'typescript' }: Props) {
 
   return (
     <div className="overflow-hidden rounded-xl border border-[var(--line)] bg-[var(--surface-strong)] my-3 shadow-sm">
-      <div className="flex items-center justify-between border-b border-[var(--line)] bg-[var(--header-bg)] px-4 py-2 text-xs font-mono text-[var(--sea-ink-soft)]">
-        <span className="font-semibold text-[var(--sea-ink)]">{title || `${language}`}</span>
+      <div className="flex items-center justify-between gap-3 border-b border-[var(--line)] bg-[var(--header-bg)] px-4 py-2 text-xs font-mono text-[var(--sea-ink-soft)]">
+        <span className="min-w-0 font-semibold text-[var(--sea-ink)]">{title || `${language}`}</span>
         <button
           type="button"
           onClick={() => copy(code)}
           aria-label="Copy code to clipboard"
-          className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs hover:bg-[var(--chip-bg)] transition text-[var(--sea-ink)]"
+          className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-md px-2 py-1 text-xs hover:bg-[var(--chip-bg)] transition text-[var(--sea-ink)]"
         >
           {copied ? (
             <>

@@ -1,17 +1,16 @@
-
-@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap");
-@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap');
+@import 'tailwindcss';
 @plugin "@tailwindcss/typography";
 
 @theme {
-  --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Manrope', ui-sans-serif, system-ui, sans-serif;
 }
 
 :root {
   --sea-ink: #173a40;
   --sea-ink-soft: #416166;
   --lagoon: #4fb8b2;
-  --lagoon-deep: #328f97;
+  --lagoon-deep: #256f77;
   --palm: #2f6a4a;
   --sand: #e7f0e8;
   --foam: #f3faf5;
@@ -29,7 +28,7 @@
   --hero-b: rgba(47, 106, 74, 0.2);
 }
 
-:root[data-theme="dark"] {
+:root[data-theme='dark'] {
   --sea-ink: #d7ece8;
   --sea-ink-soft: #afcdc8;
   --lagoon: #60d7cf;
@@ -52,7 +51,7 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
+  :root:not([data-theme='light']) {
     --sea-ink: #d7ece8;
     --sea-ink-soft: #afcdc8;
     --lagoon: #60d7cf;
@@ -93,28 +92,45 @@ body {
   background:
     radial-gradient(1100px 620px at -8% -10%, var(--hero-a), transparent 58%),
     radial-gradient(1050px 620px at 112% -12%, var(--hero-b), transparent 62%),
-    radial-gradient(720px 380px at 50% 115%, rgba(79, 184, 178, 0.1), transparent 68%),
-    linear-gradient(180deg, color-mix(in oklab, var(--sand) 68%, white) 0%, var(--foam) 44%, var(--bg-base) 100%);
+    radial-gradient(
+      720px 380px at 50% 115%,
+      rgba(79, 184, 178, 0.1),
+      transparent 68%
+    ),
+    linear-gradient(
+      180deg,
+      color-mix(in oklab, var(--sand) 68%, white) 0%,
+      var(--foam) 44%,
+      var(--bg-base) 100%
+    );
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 body::before {
-  content: "";
+  content: '';
   position: fixed;
   inset: 0;
   pointer-events: none;
   z-index: -1;
   opacity: 0.28;
   background:
-    radial-gradient(circle at 20% 15%, rgba(255, 255, 255, 0.8), transparent 34%),
-    radial-gradient(circle at 78% 26%, rgba(79, 184, 178, 0.2), transparent 42%),
+    radial-gradient(
+      circle at 20% 15%,
+      rgba(255, 255, 255, 0.8),
+      transparent 34%
+    ),
+    radial-gradient(
+      circle at 78% 26%,
+      rgba(79, 184, 178, 0.2),
+      transparent 42%
+    ),
     radial-gradient(circle at 42% 82%, rgba(47, 106, 74, 0.14), transparent 36%);
 }
 
 body::after {
-  content: "";
+  content: '';
   position: fixed;
   inset: 0;
   pointer-events: none;
@@ -135,7 +151,7 @@ a {
 }
 
 a:hover {
-  color: #246f76;
+  color: var(--sea-ink);
 }
 
 code {
@@ -161,7 +177,7 @@ pre code {
 }
 
 .display-title {
-  font-family: "Fraunces", Georgia, serif;
+  font-family: 'Fraunces', Georgia, serif;
 }
 
 .island-shell {
@@ -175,7 +191,11 @@ pre code {
 }
 
 .feature-card {
-  background: linear-gradient(165deg, color-mix(in oklab, var(--surface-strong) 93%, white 7%), var(--surface));
+  background: linear-gradient(
+    165deg,
+    color-mix(in oklab, var(--surface-strong) 93%, white 7%),
+    var(--surface)
+  );
   box-shadow:
     0 1px 0 var(--inset-glint) inset,
     0 18px 34px rgba(30, 90, 72, 0.1),
@@ -255,7 +275,10 @@ pre code {
   background: color-mix(in oklab, var(--surface-strong) 88%, white 12%);
   color: var(--sea-ink);
   outline: none;
-  transition: border-color 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    background-color 180ms ease;
 }
 
 .demo-input,
@@ -393,7 +416,10 @@ pre code {
 button,
 .island-shell,
 a {
-  transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease,
+  transition:
+    background-color 180ms ease,
+    color 180ms ease,
+    border-color 180ms ease,
     transform 180ms ease;
 }
 
@@ -414,7 +440,7 @@ a {
 }
 
 .nav-link::after {
-  content: "";
+  content: '';
   position: absolute;
   left: 0;
   bottom: -6px;
@@ -462,7 +488,6 @@ a {
   }
 }
 
-
 @custom-variant dark (&:where(.dark, .dark *));
 
 :focus-visible {
@@ -481,10 +506,14 @@ a {
   transform: translateY(-160%);
 }
 
-.skip-link:focus { transform: translateY(0); }
+.skip-link:focus {
+  transform: translateY(0);
+}
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
@@ -492,4 +521,218 @@ a {
   }
 }
 
-.demo-input[type="search"] { padding-inline-start: 2.25rem; }
+.demo-input[type='search'] {
+  padding-inline-start: 2.25rem;
+}
+
+/* Learning catalog and advanced experiments share the existing theme tokens. */
+.learning-hero {
+  display: grid;
+  gap: 2.5rem;
+  position: relative;
+  background:
+    radial-gradient(
+      ellipse at 5% 0%,
+      color-mix(in oklab, var(--lagoon) 18%, transparent),
+      transparent 65%
+    ),
+    var(--surface);
+}
+.learning-path {
+  padding: 1.5rem;
+  border-radius: 1.25rem;
+  border: 1px solid var(--line);
+  background: var(--surface-strong);
+  align-self: center;
+}
+.learning-progress {
+  display: block;
+  width: 100%;
+  height: 0.45rem;
+  overflow: hidden;
+  border: 0;
+  border-radius: 1rem;
+  background: var(--sand);
+  accent-color: var(--palm);
+}
+.learning-progress::-webkit-progress-bar {
+  background: var(--sand);
+  border-radius: 1rem;
+}
+.learning-progress::-webkit-progress-value {
+  background: var(--palm);
+  border-radius: 1rem;
+}
+.learning-progress::-moz-progress-bar {
+  background: var(--palm);
+  border-radius: 1rem;
+}
+.topic-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  justify-content: space-between;
+}
+.topic-controls > div {
+  flex: 1 1 20rem;
+  max-width: 34rem;
+}
+.topic-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid var(--line);
+  border-radius: 0.65rem;
+  padding: 0.65rem 0.85rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--sea-ink-soft);
+  background: var(--surface);
+  cursor: pointer;
+}
+.topic-filter span {
+  font-size: 0.65rem;
+  opacity: 0.8;
+}
+.topic-filter:hover,
+.topic-filter.is-selected {
+  color: var(--sea-ink);
+  background: color-mix(in oklab, var(--lagoon) 20%, var(--surface-strong));
+  border-color: var(--lagoon-deep);
+}
+.topic-card {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 3px 12px rgba(23, 58, 64, 0.04);
+}
+.topic-card-advanced {
+  border-top: 3px solid var(--palm);
+}
+.topic-card-link {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 1.4rem;
+  color: var(--sea-ink);
+}
+.topic-card-link:hover {
+  color: var(--sea-ink);
+  background: color-mix(in oklab, var(--lagoon) 7%, transparent);
+}
+.topic-level {
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--sea-ink-soft);
+}
+.topic-level-advanced {
+  color: var(--palm);
+}
+.topic-tag {
+  padding: 0.2rem 0.45rem;
+  border-radius: 0.4rem;
+  border: 1px solid var(--line);
+  background: var(--chip-bg);
+  color: var(--sea-ink-soft);
+  font-size: 0.65rem;
+}
+.topic-complete {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-top: 1px solid var(--line);
+  padding: 0.85rem;
+  color: var(--sea-ink-soft);
+  cursor: pointer;
+}
+.topic-complete:hover,
+.topic-complete[aria-pressed='true'] {
+  background: color-mix(in oklab, var(--lagoon) 12%, transparent);
+  color: var(--sea-ink);
+}
+.brand-symbol {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--chip-line);
+  border-radius: 0.65rem;
+  padding: 0.5rem;
+  background: color-mix(in oklab, var(--lagoon) 18%, transparent);
+  color: var(--palm);
+}
+.topic-nav-link {
+  display: block;
+  padding: 0.65rem 0.75rem;
+  border-radius: 0.65rem;
+  font-size: 0.8rem;
+  text-decoration: none;
+  color: var(--sea-ink-soft);
+}
+.topic-nav-link:hover,
+.topic-nav-active {
+  background: var(--chip-bg);
+  color: var(--sea-ink);
+}
+.lab-snapshot {
+  padding: 1.25rem;
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  background: var(--chip-bg);
+  min-width: 0;
+}
+.lesson-steps {
+  padding-left: 1.25rem;
+  list-style: decimal;
+  color: var(--sea-ink-soft);
+  font-size: 0.9rem;
+  line-height: 1.8;
+}
+.lesson-steps li + li {
+  margin-top: 0.75rem;
+}
+.lesson-steps strong {
+  color: var(--sea-ink);
+}
+.lesson-details {
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+  padding: 1rem;
+}
+.lesson-details summary {
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+.lesson-details p {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: var(--sea-ink-soft);
+  line-height: 1.8;
+}
+.service-track {
+  height: 0.75rem;
+  background: color-mix(in oklab, var(--lagoon) 8%, var(--sand));
+  border-radius: 1rem;
+  overflow: hidden;
+}
+.service-bar {
+  height: 100%;
+  min-width: 2px;
+  background: var(--palm);
+  border-radius: 1rem;
+}
+.service-bar-failed {
+  background: #bb5750;
+}
+@media (min-width: 900px) {
+  .learning-hero {
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  }
+}
