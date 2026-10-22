@@ -11,6 +11,13 @@ export type LearningUpdate = {
 
 export const recentChanges: LearningUpdate[] = [
   {
+    id: 'outbox-delivery',
+    date: '2026-10-23',
+    title: 'Follow an order from commit to invoice',
+    summary: 'Compare direct publishing with a transactional outbox. Explore six delivery scenarios, roll back failed transactions, and see how consumer deduplication prevents duplicate invoices.',
+    topics: ['outbox'],
+  },
+  {
     id: 'resilience-budget',
     date: '2026-10-23',
     title: 'Protect checkout when a dependency fails',

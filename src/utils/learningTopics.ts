@@ -149,6 +149,16 @@ export const learningTopics = [
     tags: ['circuit breaker', 'timeouts', 'backoff', 'shipping', 'checkout'],
     prerequisites: ['parallel', 'idempotency'],
   },
+  {
+    id: 'outbox',
+    to: '/features/outbox',
+    title: 'Transactional outbox & event delivery',
+    level: 'Advanced',
+    minutes: 28,
+    summary: 'Deliver order events to billing reliably. Recover crashes, suppress duplicate invoices, and retain failed events.',
+    tags: ['outbox', 'transactions', 'events', 'billing', 'queues', 'at-least-once'],
+    prerequisites: ['idempotency', 'resilience'],
+  },
 ] as const
 
 export type LearningTopic = (typeof learningTopics)[number]

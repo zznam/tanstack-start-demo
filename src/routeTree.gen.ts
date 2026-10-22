@@ -19,6 +19,7 @@ import { Route as FeaturesIdempotencyRouteImport } from './routes/features.idemp
 import { Route as FeaturesIsomorphicRouteImport } from './routes/features.isomorphic'
 import { Route as FeaturesMiddlewareRouteImport } from './routes/features.middleware'
 import { Route as FeaturesOptimisticRouteImport } from './routes/features.optimistic'
+import { Route as FeaturesOutboxRouteImport } from './routes/features.outbox'
 import { Route as FeaturesPaginationRouteImport } from './routes/features.pagination'
 import { Route as FeaturesParallelRouteImport } from './routes/features.parallel'
 import { Route as FeaturesResilienceRouteImport } from './routes/features.resilience'
@@ -78,6 +79,11 @@ const FeaturesMiddlewareRoute = FeaturesMiddlewareRouteImport.update({
 const FeaturesOptimisticRoute = FeaturesOptimisticRouteImport.update({
   id: '/features/optimistic',
   path: '/features/optimistic',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FeaturesOutboxRoute = FeaturesOutboxRouteImport.update({
+  id: '/features/outbox',
+  path: '/features/outbox',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FeaturesPaginationRoute = FeaturesPaginationRouteImport.update({
@@ -145,6 +151,7 @@ export interface FileRoutesByFullPath {
   '/features/isomorphic': typeof FeaturesIsomorphicRoute
   '/features/middleware': typeof FeaturesMiddlewareRoute
   '/features/optimistic': typeof FeaturesOptimisticRoute
+  '/features/outbox': typeof FeaturesOutboxRoute
   '/features/pagination': typeof FeaturesPaginationRoute
   '/features/parallel': typeof FeaturesParallelRoute
   '/features/resilience': typeof FeaturesResilienceRoute
@@ -167,6 +174,7 @@ export interface FileRoutesByTo {
   '/features/isomorphic': typeof FeaturesIsomorphicRoute
   '/features/middleware': typeof FeaturesMiddlewareRoute
   '/features/optimistic': typeof FeaturesOptimisticRoute
+  '/features/outbox': typeof FeaturesOutboxRoute
   '/features/pagination': typeof FeaturesPaginationRoute
   '/features/parallel': typeof FeaturesParallelRoute
   '/features/resilience': typeof FeaturesResilienceRoute
@@ -190,6 +198,7 @@ export interface FileRoutesById {
   '/features/isomorphic': typeof FeaturesIsomorphicRoute
   '/features/middleware': typeof FeaturesMiddlewareRoute
   '/features/optimistic': typeof FeaturesOptimisticRoute
+  '/features/outbox': typeof FeaturesOutboxRoute
   '/features/pagination': typeof FeaturesPaginationRoute
   '/features/parallel': typeof FeaturesParallelRoute
   '/features/resilience': typeof FeaturesResilienceRoute
@@ -214,6 +223,7 @@ export interface FileRouteTypes {
     | '/features/isomorphic'
     | '/features/middleware'
     | '/features/optimistic'
+    | '/features/outbox'
     | '/features/pagination'
     | '/features/parallel'
     | '/features/resilience'
@@ -236,6 +246,7 @@ export interface FileRouteTypes {
     | '/features/isomorphic'
     | '/features/middleware'
     | '/features/optimistic'
+    | '/features/outbox'
     | '/features/pagination'
     | '/features/parallel'
     | '/features/resilience'
@@ -258,6 +269,7 @@ export interface FileRouteTypes {
     | '/features/isomorphic'
     | '/features/middleware'
     | '/features/optimistic'
+    | '/features/outbox'
     | '/features/pagination'
     | '/features/parallel'
     | '/features/resilience'
@@ -281,6 +293,7 @@ export interface RootRouteChildren {
   FeaturesIsomorphicRoute: typeof FeaturesIsomorphicRoute
   FeaturesMiddlewareRoute: typeof FeaturesMiddlewareRoute
   FeaturesOptimisticRoute: typeof FeaturesOptimisticRoute
+  FeaturesOutboxRoute: typeof FeaturesOutboxRoute
   FeaturesPaginationRoute: typeof FeaturesPaginationRoute
   FeaturesParallelRoute: typeof FeaturesParallelRoute
   FeaturesResilienceRoute: typeof FeaturesResilienceRoute
@@ -363,6 +376,13 @@ declare module '@tanstack/react-router' {
       path: '/features/optimistic'
       fullPath: '/features/optimistic'
       preLoaderRoute: typeof FeaturesOptimisticRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/features/outbox': {
+      id: '/features/outbox'
+      path: '/features/outbox'
+      fullPath: '/features/outbox'
+      preLoaderRoute: typeof FeaturesOutboxRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/features/pagination': {
@@ -449,6 +469,7 @@ const rootRouteChildren: RootRouteChildren = {
   FeaturesIsomorphicRoute: FeaturesIsomorphicRoute,
   FeaturesMiddlewareRoute: FeaturesMiddlewareRoute,
   FeaturesOptimisticRoute: FeaturesOptimisticRoute,
+  FeaturesOutboxRoute: FeaturesOutboxRoute,
   FeaturesPaginationRoute: FeaturesPaginationRoute,
   FeaturesParallelRoute: FeaturesParallelRoute,
   FeaturesResilienceRoute: FeaturesResilienceRoute,
