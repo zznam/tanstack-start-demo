@@ -15,7 +15,7 @@ test('catalog URLs preserve filters through reload, sharing and browser history'
   await expect(page.getByLabel('Hide completed')).toBeChecked()
   await expect(page.locator('#topics article')).toHaveCount(1)
   await page.getByRole('button', { name: 'Reset topic filters' }).click()
-  await expect(page.locator('#topics article')).toHaveCount(13)
+  await expect(page.locator('#topics article')).toHaveCount(14)
   await page.goBack()
   await expect(page.getByRole('searchbox')).toHaveValue('versioning')
   await expect(page.getByLabel('Hide completed')).toBeChecked()
@@ -24,7 +24,7 @@ test('catalog URLs preserve filters through reload, sharing and browser history'
   await expect(shared.locator('#topics article')).toHaveCount(1)
   await shared.close()
   await page.goto('/?q=%5B1%5D&level=Expert&incomplete=invalid')
-  await expect(page.locator('#topics article')).toHaveCount(13)
+  await expect(page.locator('#topics article')).toHaveCount(14)
 })
 
 test('recent changes connect to working lessons from the navigation menu', async ({ page }) => {
@@ -32,7 +32,7 @@ test('recent changes connect to working lessons from the navigation menu', async
   await page.getByRole('button', { name: 'Toggle navigation menu' }).click()
   await page.locator('#topic-navigation').getByRole('link', { name: 'What’s new' }).click()
   await expect(page.getByRole('heading', { name: 'What’s new in the lab' })).toBeVisible()
-  await expect(page.getByRole('list', { name: 'Recent app updates' }).locator(':scope > li')).toHaveCount(4)
+  await expect(page.getByRole('list', { name: 'Recent app updates' }).locator(':scope > li')).toHaveCount(5)
   await page.getByRole('link', { name: 'Caching & revalidation', exact: true }).click()
   await expect(page.getByTestId('cache-loader')).toContainText('Revision 1')
 })
@@ -41,9 +41,9 @@ test('catalog filters, progress and next step survive reload', async ({
   page,
 }) => {
   await page.goto('/')
-  await expect(page.locator('#topics article')).toHaveCount(13)
+  await expect(page.locator('#topics article')).toHaveCount(14)
   await page.getByRole('button', { name: /^Advanced/ }).click()
-  await expect(page.locator('#topics article')).toHaveCount(5)
+  await expect(page.locator('#topics article')).toHaveCount(6)
   await page
     .getByRole('searchbox', { name: 'Search learning topics' })
     .fill('versioning')
@@ -59,7 +59,7 @@ test('catalog filters, progress and next step survive reload', async ({
     page.getByText('No matching topics', { exact: true }),
   ).toBeVisible()
   await page.getByRole('button', { name: 'Reset topic filters' }).click()
-  await expect(page.locator('#topics article')).toHaveCount(13)
+  await expect(page.locator('#topics article')).toHaveCount(14)
   await page.reload()
   await expect(
     page.getByRole('button', {
@@ -71,7 +71,7 @@ test('catalog filters, progress and next step survive reload', async ({
     page.getByRole('progressbar', { name: 'Learning progress' }),
   ).toHaveAttribute('value', '1')
   await page.getByRole('button', { name: 'Jump to advanced labs' }).click()
-  await expect(page.locator('#topics article')).toHaveCount(5)
+  await expect(page.locator('#topics article')).toHaveCount(6)
   await page.locator('#topics a[href="/features/parallel"]').click()
   await page
     .getByRole('button', { name: 'Mark as complete', exact: true })
@@ -255,6 +255,7 @@ for (const route of [
   '/features/parallel',
   '/features/idempotency',
   '/features/pagination',
+  '/features/resilience',
 ]) {
   test(`${route} fits narrow layouts and passes dark accessibility checks`, async ({
     page,
@@ -266,6 +267,10 @@ for (const route of [
       await expect(
         page.getByRole('heading', { name: 'Dashboard ready', exact: true }),
       ).toBeVisible()
+    }
+    if (route === '/features/resilience') {
+      await page.getByRole('button', { name: 'Run scenario', exact: true }).click()
+      await expect(page.getByTestId('experiment-result')).toBeVisible()
     }
     const { violations } = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])

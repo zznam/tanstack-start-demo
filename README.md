@@ -1,6 +1,6 @@
 # TanStack Start Learning Lab
 
-An interactive learning project with 13 topics, from typed routing and server functions to caching, optimistic concurrency, resilient parallel loading, idempotent mutations, and cursor pagination. Built with React, TanStack Start, Vite, Tailwind CSS, and Nitro's Node server preset.
+An interactive learning project with 14 topics, from typed routing and server functions to caching, optimistic concurrency, resilient parallel loading, idempotent mutations, and cursor pagination. Built with React, TanStack Start, Vite, Tailwind CSS, and Nitro's Node server preset.
 
 Inspired by the [TanStack Start announcement](https://tanstack.com/blog/tanstack-start-1-0). The articles are sample data, and this demo is not a production content platform.
 
@@ -42,6 +42,7 @@ The server defaults to port 3000; use `PORT=3001 pnpm start` to change it. `pnpm
 - `/features/parallel`: compare sequential and parallel server service calls with measured timing bars. `Promise.allSettled` preserves successful results during optional failures; a required catalog failure blocks the core dashboard. Requests start only when the experiment is run.
 - `/features/idempotency`: reserve sample seats with a stable request key, replay the original receipt, reject key/payload conflicts, send concurrent duplicates, and recover after an actual commit followed by a simulated response error. The URL preserves the request key and quantity through reloads. An uncertain response locks quantity changes and new keys until the same request is retried.
 - `/features/pagination`: read one changing server feed through offset and composite timestamp/ID cursors. Insert or delete newest events between pages to expose repeats and skipped rows. Cursor validation binds the position to a workspace and feed generation; restart recovers from invalid or expired cursors. Page-size changes restart traversal.
+- `/features/resilience`: shipping quotes with bounded retries, a total deadline, a circuit breaker, and recovery probes. Five failure scenarios run on the server with a deterministic virtual clock; controls compare policy choices and the event trace explains each decision. No carrier API is called.
 - `/about`: project and ecosystem background.
 
 On the initial request, default SSR runs the loader and component on the server. `data-only` runs the loader there but renders the component in the browser. `ssr: false` runs both in the browser. **Later client navigations run route loaders in the browser**; `createServerFn` is the boundary that keeps server work on the server. Bot requests may wait for all deferred content instead of receiving the progressively streamed response a browser receives.
@@ -70,7 +71,7 @@ pnpm test:e2e    # production server on 127.0.0.1:3100; desktop and touch mobile
 pnpm audit
 ```
 
-`pnpm verify` runs the checks, build, and browser tests in sequence. Port 3100 must be free. Browser tests exercise page rendering, accessibility scans, search/detail navigation, create/like RPCs, middleware telemetry, request metadata, error states, themes with blocked storage, selective SSR response contents, progressive streaming, topic discovery and progress persistence, cache reuse/invalidation, optimistic rollback and conflict recovery, uncertain transport failures, parallel service degradation, idempotent retries after lost responses, concurrent deduplication, cursor/offset drift during mutations, and pagination recovery. Advanced pages are checked in dark mode and at 320, 768, 1280, and 1920 pixels. Failures retain screenshots and traces under `test-results/`; the HTML report is in `playwright-report/`.
+`pnpm verify` runs the checks, build, and browser tests in sequence. Port 3100 must be free. Browser tests exercise page rendering, accessibility scans, search/detail navigation, create/like RPCs, middleware telemetry, request metadata, error states, themes with blocked storage, selective SSR response contents, progressive streaming, topic discovery and progress persistence, cache reuse/invalidation, optimistic rollback and conflict recovery, uncertain transport failures, parallel service degradation, idempotent retries after lost responses, concurrent deduplication, cursor/offset drift during mutations, pagination recovery, shipping retry budgets, circuit transitions, and scenario transport recovery. The all-pages check derives lesson routes from the catalog. Advanced pages are checked in dark mode and at 320, 768, 1280, and 1920 pixels. Failures retain screenshots and traces under `test-results/`; the HTML report is in `playwright-report/`.
 
 The targeted `postcss-selector-parser` override patches the parser used by Tailwind Typography. Keep it until Typography adopts a patched parser, then remove it and rerun the build and accessibility/browser checks.
 
@@ -84,6 +85,7 @@ The targeted `postcss-selector-parser` override patches the parser used by Tailw
 - `src/utils/labServerFns.ts` and `labStore.server.ts`: validated advanced RPCs and bounded workspace state.
 - `src/utils/parallelLab.ts`: measured service orchestration, with an injectable clock for deterministic regression tests.
 - `src/utils/reliabilityModels.ts`, `reliabilityServerFns.ts`, and `reliabilityStore.server.ts`: validated idempotency and pagination contracts, real server mutations, and bounded disposable storage.
+- `src/utils/resilienceLab.server.ts` and `resilienceServerFns.ts`: bounded shipping-policy simulation and its validated server entry point. `ScenarioRunner` displays metrics and an expandable event trace.
 - `src/utils/catalogSearch.ts` and `recentChanges.ts`: shareable catalog filters and curated app updates.
 - `src/utils/middleware.ts`: timing and simulated identity middleware.
 - `src/components/`: shared shell, clipboard feedback, themes, and error views.

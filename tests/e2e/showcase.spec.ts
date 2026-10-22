@@ -1,31 +1,29 @@
 import { test, expect } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
+import { learningTopics } from '../../src/utils/learningTopics'
 
 const routes = [
-  '/', '/about', '/features/routing', '/features/execution-modes',
-  '/features/server-functions', '/features/middleware', '/features/isomorphic',
-  '/features/streaming', '/features/server-context', '/features/agent-dx',
-  '/features/caching', '/features/optimistic', '/features/parallel',
+  '/', '/about', '/updates', ...learningTopics.map(topic => topic.to),
   '/features/routing/posts/1', '/features/execution-modes/spa', '/features/execution-modes/hybrid',
 ]
 
-test('all pages render without browser errors, overflow or accessibility violations', async ({ page }, testInfo) => {
-  test.setTimeout(60_000)
-  const errors: string[] = []
-  page.on('pageerror', (error) => errors.push(error.message))
-  for (const route of routes) {
+for (const route of routes) {
+  test(`page ${route} renders without browser errors, overflow or accessibility violations`, async ({ page }, testInfo) => {
+    const errors: string[] = []
+    page.on('pageerror', error => errors.push(error.message))
     const response = await page.goto(route)
     expect(response?.status(), route).toBe(200)
     await expect(page.locator('main h1')).toHaveCount(1)
     await expect(page.getByText('Something went wrong', { exact: true })).toHaveCount(0)
     await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), { message: `Overflow on ${route}` }).toBe(true)
     const { violations } = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze()
-    expect(violations.map(({ id, nodes }) => ({ id, targets: nodes.map((n) => n.target) })), route).toEqual([])
-  }
-  await page.goto('/features/routing')
-  await page.screenshot({ path: testInfo.outputPath('routing.png'), fullPage: true })
-  expect(errors).toEqual([])
-})
+    expect(violations.map(({ id, nodes }) => ({ id, targets: nodes.map(n => n.target) })), route).toEqual([])
+    if (route === '/features/routing') {
+      await page.screenshot({ path: testInfo.outputPath('routing.png'), fullPage: true })
+    }
+    expect(errors).toEqual([])
+  })
+}
 
 test('search, filters, article navigation and back link preserve URL state', async ({ page }) => {
   await page.goto('/features/routing?category=invalid&sortBy=wrong&query=%7B%7D')

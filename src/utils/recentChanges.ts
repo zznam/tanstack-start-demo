@@ -11,6 +11,13 @@ export type LearningUpdate = {
 
 export const recentChanges: LearningUpdate[] = [
   {
+    id: 'resilience-budget',
+    date: '2026-10-23',
+    title: 'Protect checkout when a dependency fails',
+    summary: 'Run five shipping-carrier failure scenarios, compare retry budgets and circuit breakers, and inspect each attempt in a server-generated event trace.',
+    topics: ['resilience'],
+  },
+  {
     id: 'reliability-labs',
     date: '2026-10-22',
     title: 'Go deeper on retries and changing data',

@@ -21,6 +21,7 @@ import { Route as FeaturesMiddlewareRouteImport } from './routes/features.middle
 import { Route as FeaturesOptimisticRouteImport } from './routes/features.optimistic'
 import { Route as FeaturesPaginationRouteImport } from './routes/features.pagination'
 import { Route as FeaturesParallelRouteImport } from './routes/features.parallel'
+import { Route as FeaturesResilienceRouteImport } from './routes/features.resilience'
 import { Route as FeaturesRoutingRouteImport } from './routes/features.routing'
 import { Route as FeaturesServerContextRouteImport } from './routes/features.server-context'
 import { Route as FeaturesServerFunctionsRouteImport } from './routes/features.server-functions'
@@ -89,6 +90,11 @@ const FeaturesParallelRoute = FeaturesParallelRouteImport.update({
   path: '/features/parallel',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FeaturesResilienceRoute = FeaturesResilienceRouteImport.update({
+  id: '/features/resilience',
+  path: '/features/resilience',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FeaturesRoutingRoute = FeaturesRoutingRouteImport.update({
   id: '/features/routing',
   path: '/features/routing',
@@ -141,6 +147,7 @@ export interface FileRoutesByFullPath {
   '/features/optimistic': typeof FeaturesOptimisticRoute
   '/features/pagination': typeof FeaturesPaginationRoute
   '/features/parallel': typeof FeaturesParallelRoute
+  '/features/resilience': typeof FeaturesResilienceRoute
   '/features/routing': typeof FeaturesRoutingRoute
   '/features/server-context': typeof FeaturesServerContextRoute
   '/features/server-functions': typeof FeaturesServerFunctionsRoute
@@ -162,6 +169,7 @@ export interface FileRoutesByTo {
   '/features/optimistic': typeof FeaturesOptimisticRoute
   '/features/pagination': typeof FeaturesPaginationRoute
   '/features/parallel': typeof FeaturesParallelRoute
+  '/features/resilience': typeof FeaturesResilienceRoute
   '/features/routing': typeof FeaturesRoutingRoute
   '/features/server-context': typeof FeaturesServerContextRoute
   '/features/server-functions': typeof FeaturesServerFunctionsRoute
@@ -184,6 +192,7 @@ export interface FileRoutesById {
   '/features/optimistic': typeof FeaturesOptimisticRoute
   '/features/pagination': typeof FeaturesPaginationRoute
   '/features/parallel': typeof FeaturesParallelRoute
+  '/features/resilience': typeof FeaturesResilienceRoute
   '/features/routing': typeof FeaturesRoutingRoute
   '/features/server-context': typeof FeaturesServerContextRoute
   '/features/server-functions': typeof FeaturesServerFunctionsRoute
@@ -207,6 +216,7 @@ export interface FileRouteTypes {
     | '/features/optimistic'
     | '/features/pagination'
     | '/features/parallel'
+    | '/features/resilience'
     | '/features/routing'
     | '/features/server-context'
     | '/features/server-functions'
@@ -228,6 +238,7 @@ export interface FileRouteTypes {
     | '/features/optimistic'
     | '/features/pagination'
     | '/features/parallel'
+    | '/features/resilience'
     | '/features/routing'
     | '/features/server-context'
     | '/features/server-functions'
@@ -249,6 +260,7 @@ export interface FileRouteTypes {
     | '/features/optimistic'
     | '/features/pagination'
     | '/features/parallel'
+    | '/features/resilience'
     | '/features/routing'
     | '/features/server-context'
     | '/features/server-functions'
@@ -271,6 +283,7 @@ export interface RootRouteChildren {
   FeaturesOptimisticRoute: typeof FeaturesOptimisticRoute
   FeaturesPaginationRoute: typeof FeaturesPaginationRoute
   FeaturesParallelRoute: typeof FeaturesParallelRoute
+  FeaturesResilienceRoute: typeof FeaturesResilienceRoute
   FeaturesRoutingRoute: typeof FeaturesRoutingRoute
   FeaturesServerContextRoute: typeof FeaturesServerContextRoute
   FeaturesServerFunctionsRoute: typeof FeaturesServerFunctionsRoute
@@ -366,6 +379,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FeaturesParallelRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/features/resilience': {
+      id: '/features/resilience'
+      path: '/features/resilience'
+      fullPath: '/features/resilience'
+      preLoaderRoute: typeof FeaturesResilienceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/features/routing': {
       id: '/features/routing'
       path: '/features/routing'
@@ -431,6 +451,7 @@ const rootRouteChildren: RootRouteChildren = {
   FeaturesOptimisticRoute: FeaturesOptimisticRoute,
   FeaturesPaginationRoute: FeaturesPaginationRoute,
   FeaturesParallelRoute: FeaturesParallelRoute,
+  FeaturesResilienceRoute: FeaturesResilienceRoute,
   FeaturesRoutingRoute: FeaturesRoutingRoute,
   FeaturesServerContextRoute: FeaturesServerContextRoute,
   FeaturesServerFunctionsRoute: FeaturesServerFunctionsRoute,
