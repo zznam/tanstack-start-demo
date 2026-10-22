@@ -5,10 +5,12 @@ const routes = [
   '/', '/about', '/features/routing', '/features/execution-modes',
   '/features/server-functions', '/features/middleware', '/features/isomorphic',
   '/features/streaming', '/features/server-context', '/features/agent-dx',
+  '/features/caching', '/features/optimistic', '/features/parallel',
   '/features/routing/posts/1', '/features/execution-modes/spa', '/features/execution-modes/hybrid',
 ]
 
 test('all pages render without browser errors, overflow or accessibility violations', async ({ page }, testInfo) => {
+  test.setTimeout(60_000)
   const errors: string[] = []
   page.on('pageerror', (error) => errors.push(error.message))
   for (const route of routes) {

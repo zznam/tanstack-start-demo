@@ -21,12 +21,12 @@ export const Route = createRootRoute({
         content: 'width=device-width, initial-scale=1',
       },
       {
-        title: 'TanStack Start 1.0 Feature Showcase | Type-Safe Full-Stack React',
+        title: 'TanStack Start Learning Lab | Full-Stack React',
       },
       {
         name: 'description',
         content:
-          'Interactive showcase demonstrating all features of TanStack Start 1.0 from Tanner Linsley’s stable release announcement.',
+          'Hands-on TanStack Start lessons, from typed routes and server functions to cache invalidation, optimistic updates, and resilient data loading.',
       },
     ],
     links: [
