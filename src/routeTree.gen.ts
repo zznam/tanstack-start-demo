@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
+import { Route as UpdatesRouteImport } from './routes/updates'
 import { Route as FeaturesAgentDxRouteImport } from './routes/features.agent-dx'
 import { Route as FeaturesCachingRouteImport } from './routes/features.caching'
 import { Route as FeaturesExecutionModesRouteImport } from './routes/features.execution-modes'
@@ -34,6 +35,11 @@ const IndexRoute = IndexRouteImport.update({
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UpdatesRoute = UpdatesRouteImport.update({
+  id: '/updates',
+  path: '/updates',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FeaturesAgentDxRoute = FeaturesAgentDxRouteImport.update({
@@ -113,6 +119,7 @@ const FeaturesRoutingPostsPostIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/updates': typeof UpdatesRoute
   '/features/agent-dx': typeof FeaturesAgentDxRoute
   '/features/caching': typeof FeaturesCachingRoute
   '/features/execution-modes': typeof FeaturesExecutionModesRoute
@@ -131,6 +138,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/updates': typeof UpdatesRoute
   '/features/agent-dx': typeof FeaturesAgentDxRoute
   '/features/caching': typeof FeaturesCachingRoute
   '/features/execution-modes': typeof FeaturesExecutionModesRoute
@@ -150,6 +158,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/updates': typeof UpdatesRoute
   '/features/agent-dx': typeof FeaturesAgentDxRoute
   '/features/caching': typeof FeaturesCachingRoute
   '/features/execution-modes': typeof FeaturesExecutionModesRoute
@@ -170,6 +179,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
+    | '/updates'
     | '/features/agent-dx'
     | '/features/caching'
     | '/features/execution-modes'
@@ -188,6 +198,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/about'
+    | '/updates'
     | '/features/agent-dx'
     | '/features/caching'
     | '/features/execution-modes'
@@ -206,6 +217,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/about'
+    | '/updates'
     | '/features/agent-dx'
     | '/features/caching'
     | '/features/execution-modes'
@@ -225,6 +237,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  UpdatesRoute: typeof UpdatesRoute
   FeaturesAgentDxRoute: typeof FeaturesAgentDxRoute
   FeaturesCachingRoute: typeof FeaturesCachingRoute
   FeaturesExecutionModesRoute: typeof FeaturesExecutionModesRoute
@@ -255,6 +268,13 @@ declare module '@tanstack/react-router' {
       path: '/about'
       fullPath: '/about'
       preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/updates': {
+      id: '/updates'
+      path: '/updates'
+      fullPath: '/updates'
+      preLoaderRoute: typeof UpdatesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/features/agent-dx': {
@@ -361,6 +381,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  UpdatesRoute: UpdatesRoute,
   FeaturesAgentDxRoute: FeaturesAgentDxRoute,
   FeaturesCachingRoute: FeaturesCachingRoute,
   FeaturesExecutionModesRoute: FeaturesExecutionModesRoute,

@@ -26,7 +26,8 @@ The server defaults to port 3000; use `PORT=3001 pnpm start` to change it. `pnpm
 
 ## Explore the demos
 
-- `/`: searchable topic catalog with difficulty filters, estimated lesson times, prerequisites, completion controls, and a suggested next topic. Progress is versioned and saved only in this browser; blocked storage falls back to memory for the current visit. Corrupt progress is ignored. The Topics menu groups every lesson by level on desktop and mobile.
+- `/`: searchable topic catalog with difficulty filters, estimated lesson times, prerequisites, completion controls, and a suggested next topic. Search, level, and hide-completed filters live in a validated URL so refresh, sharing, and browser history preserve the selection. Progress is versioned and saved only in this browser; blocked storage falls back to memory for the current visit. Corrupt progress is ignored. The Topics menu groups every lesson by level on desktop and mobile.
+- `/updates`: recent app changes with links to the affected lessons and source history.
 - `/features/routing`: validated URL search, categories, sorting, intent preloading, and interactive error/404 boundaries.
 - `/features/routing/posts/1`: a real article detail route with server-backed likes and a back link that preserves search state. The filename's `routing_` keeps the detail page independent of the list component.
 - `/features/server-functions`: create sample posts through validated POST server functions, update likes, and trigger an intentional server error.
