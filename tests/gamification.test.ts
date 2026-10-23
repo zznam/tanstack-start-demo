@@ -3,6 +3,7 @@ import assert from 'node:assert/strict'
 import {
   answerQuestion,
   dailyChallenge,
+  dueQuestions,
   emptyGameProgress,
   focusedQuestions,
   getRewards,
@@ -10,8 +11,11 @@ import {
   parseGameProgress,
   practiceQuestions,
   practiceSummary,
+  practiceHistory,
+  recordAnswer,
   shiftDay,
   weeklySummary,
+  toggleSavedQuestion,
 } from '../src/utils/gamification.ts'
 import { learningTopics } from '../src/utils/learningTopics.ts'
 
@@ -83,6 +87,8 @@ test('saved practice filters corrupt, unknown, duplicate, impossible, future and
     today,
   )
   assert.deepEqual(parsed, {
+    saved: [],
+    reviews: {},
     version: 1,
     dailyGoal: 2,
     weeklyGoal: 3,
@@ -95,6 +101,113 @@ test('saved practice filters corrupt, unknown, duplicate, impossible, future and
         .dailyGoal,
       dailyGoal,
     )
+})
+
+test('review schedules advance only when due and never inflate rewards on early or repeated practice', () => {
+  let state = recordAnswer(emptyGameProgress(), 'url-state', 1, today)
+  assert.deepEqual(state.reviews['url-state'], {
+    stage: 1,
+    lastReviewed: today,
+    due: '2026-10-24',
+  })
+  assert.deepEqual(recordAnswer(state, 'url-state', 1, today), state)
+  assert.equal(dueQuestions(state, today).length, 0)
+  assert.equal(dueQuestions(state, '2026-10-24').length, 1)
+  state = recordAnswer(state, 'url-state', 1, '2026-10-24')
+  assert.equal(state.reviews['url-state']?.due, '2026-10-27')
+  const early = recordAnswer(state, 'url-state', 1, '2026-10-25')
+  assert.deepEqual(early.reviews, state.reviews)
+  assert.equal(early.practiceDays['2026-10-25']?.length, 1)
+  for (const [day, due] of [
+    ['2026-10-27', '2026-11-03'],
+    ['2026-11-03', '2026-11-17'],
+    ['2026-11-17', '2026-12-01'],
+  ]) {
+    state = recordAnswer(state, 'url-state', 1, day)
+    assert.equal(state.reviews['url-state']?.due, due)
+  }
+  assert.equal(getRewards([], state.mastered).xp, 50)
+  assert.deepEqual(dueQuestions(state, ''), [])
+})
+
+test('misses schedule a retry without XP or activity; recovery restarts spacing without removing mastery', () => {
+  const empty = emptyGameProgress()
+  for (const choice of [-1, 3, 0.5, NaN])
+    assert.equal(recordAnswer(empty, 'url-state', choice, today), empty)
+  assert.equal(recordAnswer(empty, 'url-state', 1, ''), empty)
+  const missed = recordAnswer(empty, 'url-state', 0, today)
+  assert.deepEqual(missed.practiceDays, {})
+  assert.equal(getRewards([], missed.mastered).xp, 0)
+  assert.equal(dueQuestions(missed, today)[0]?.id, 'url-state')
+  const recovered = recordAnswer(missed, 'url-state', 1, today)
+  assert.equal(recovered.reviews['url-state']?.due, '2026-10-24')
+  const missedAgain = recordAnswer(recovered, 'url-state', 0, '2026-10-24')
+  assert.equal(getRewards([], missedAgain.mastered).xp, 50)
+  assert.equal(missedAgain.practiceDays['2026-10-24'], undefined)
+  assert.equal(missedAgain.reviews['url-state']?.stage, 0)
+  assert.deepEqual(empty, emptyGameProgress())
+})
+
+test('saved lists and schedules survive reload while old or corrupt saves retain earned progress', () => {
+  const old = { version: 1, mastered: ['url-state'], dailyGoal: 1 }
+  const migrated = parseGameProgress(JSON.stringify(old), today)
+  assert.equal(dueQuestions(migrated, today)[0]?.id, 'url-state')
+  assert.deepEqual(migrated.saved, [])
+  const saved = toggleSavedQuestion(migrated, 'server-boundary')
+  assert.equal(
+    focusedQuestions(saved, today, 'saved')[0]?.id,
+    'server-boundary',
+  )
+  assert.deepEqual(toggleSavedQuestion(saved, 'server-boundary').saved, [])
+  assert.deepEqual(migrated.saved, [])
+  const state = recordAnswer(saved, 'url-state', 1, today)
+  assert.deepEqual(parseGameProgress(JSON.stringify(state), today), state)
+  for (const entry of [
+    null,
+    [],
+    { stage: -1 },
+    { stage: 1, lastReviewed: '2026-02-30', due: '2026-03-01' },
+    { stage: 1, lastReviewed: '2026-10-24', due: '2026-10-25' },
+    { stage: 1.5, lastReviewed: today, due: '2026-10-24' },
+    { stage: 1, lastReviewed: today, due: '2099-01-01' },
+  ]) {
+    const parsed = parseGameProgress(
+      JSON.stringify({
+        ...old,
+        saved: ['url-state', 'unknown', 'url-state'],
+        reviews: { 'url-state': entry, unknown: state.reviews['url-state'] },
+      }),
+      today,
+    )
+    assert.deepEqual(parsed.reviews, {})
+    assert.deepEqual(parsed.saved, ['url-state'])
+    assert.deepEqual(parsed.mastered, ['url-state'])
+  }
+})
+
+test('practice calendar covers 28 local dates across boundaries and excludes activity outside its range', () => {
+  const state = emptyGameProgress()
+  state.practiceDays = {
+    '2025-12-04': ['url-state'],
+    '2025-12-05': ['url-state'],
+    '2026-01-01': ['url-state', 'server-boundary'],
+    '2026-01-02': ['url-state'],
+  }
+  const days = practiceHistory(state, '2026-01-01')
+  assert.equal(days.length, 28)
+  assert.deepEqual(days[0], { day: '2025-12-05', questions: ['url-state'] })
+  assert.equal(days[1].questions.length, 0)
+  assert.equal(days.at(-1)?.questions.length, 2)
+  assert.equal(
+    days.reduce((sum, day) => sum + day.questions.length, 0),
+    3,
+  )
+  assert.ok(
+    practiceHistory(state, '2024-03-01').some(
+      ({ day }) => day === '2024-02-29',
+    ),
+  )
+  assert.deepEqual(practiceHistory(state, ''), [])
 })
 
 test('streaks allow today to be unfinished, reset after a missed day and cross month/year/leap boundaries', () => {

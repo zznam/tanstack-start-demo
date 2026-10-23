@@ -33,7 +33,7 @@ export function KnowledgeCheck({
         const correct = choice === question.answer
         setEarnedXp(correct && !mastered)
         setResult(correct ? 'correct' : 'incorrect')
-        if (correct) onAnswer(question.id, choice)
+        onAnswer(question.id, choice)
         onResult?.(correct)
       }}
     >

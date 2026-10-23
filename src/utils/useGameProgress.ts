@@ -1,5 +1,10 @@
 import { useSyncExternalStore } from 'react'
-import { answerQuestion, localDay, parseGameProgress } from './gamification'
+import {
+  recordAnswer,
+  localDay,
+  parseGameProgress,
+  toggleSavedQuestion,
+} from './gamification'
 import type { GameProgress, QuestionId } from './gamification'
 
 const STORAGE_KEY = 'tanstack-learning-game-v1'
@@ -62,7 +67,9 @@ export function useGameProgress() {
     today,
     temporary: memorySnapshot !== undefined,
     answer: (id: QuestionId, choice: number) =>
-      save((current, day) => answerQuestion(current, id, choice, day)),
+      save((current, day) => recordAnswer(current, id, choice, day)),
+    toggleSaved: (id: QuestionId) =>
+      save((current) => toggleSavedQuestion(current, id)),
     setDailyGoal: (dailyGoal: GameProgress['dailyGoal']) =>
       save((current) => ({ ...current, dailyGoal })),
     setWeeklyGoal: (weeklyGoal: GameProgress['weeklyGoal']) =>

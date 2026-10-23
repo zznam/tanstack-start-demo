@@ -13,6 +13,7 @@ import {
 } from 'lucide-react'
 import { DailyChallenge } from '../components/DailyChallenge'
 import { PracticeWorkshop } from '../components/PracticeWorkshop'
+import { PracticeHistory } from '../components/PracticeHistory'
 import { WeeklyMission } from '../components/WeeklyMission'
 import { TopicLink } from '../components/TopicLink'
 import { learningTopics } from '../utils/learningTopics'
@@ -41,8 +42,15 @@ export const Route = createFileRoute('/gamification')({
 
 function GamificationPage() {
   const { completed } = useLearningProgress()
-  const { progress, today, temporary, answer, setDailyGoal, setWeeklyGoal } =
-    useGameProgress()
+  const {
+    progress,
+    today,
+    temporary,
+    answer,
+    setDailyGoal,
+    setWeeklyGoal,
+    toggleSaved,
+  } = useGameProgress()
   const [badgeFilter, setBadgeFilter] = useState<'all' | 'earned' | 'locked'>(
     'all',
   )
@@ -84,6 +92,12 @@ function GamificationPage() {
               <a className="demo-button no-underline" href="#practice">
                 <Sparkles className="size-4" />
                 Practice now
+              </a>
+              <a
+                className="demo-button demo-button-secondary no-underline"
+                href="#history"
+              >
+                Practice history
               </a>
               <a
                 className="demo-button demo-button-secondary no-underline"
@@ -239,7 +253,13 @@ function GamificationPage() {
         today={today}
         onAnswer={answer}
       />
-      <PracticeWorkshop progress={progress} today={today} onAnswer={answer} />
+      <PracticeWorkshop
+        progress={progress}
+        today={today}
+        onAnswer={answer}
+        onToggleSaved={toggleSaved}
+      />
+      <PracticeHistory progress={progress} today={today} />
 
       <section
         id="quests"

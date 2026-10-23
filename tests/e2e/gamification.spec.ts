@@ -132,7 +132,8 @@ test('knowledge checks explain mistakes, persist mastery and goals, and resist r
   await expect(page.getByTestId('total-xp')).toHaveText('100 XP')
   await expect(page.getByTestId('daily-count')).toHaveText('2 / 3 checks today')
   await expect(
-    page.getByRole('link', { name: 'Review lesson: Typed server functions' }),
+    page.getByRole('region', { name: 'Knowledge checks', exact: true })
+      .getByRole('link', { name: 'Review lesson: Typed server functions' }),
   ).toHaveAttribute('href', '/features/server-functions')
   expect(errors).toEqual([])
 })
