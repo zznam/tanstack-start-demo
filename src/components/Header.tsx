@@ -61,6 +61,9 @@ export default function Header() {
           >
             All topics
           </Link>
+          <Link to="/gamification" className="hidden md:inline-flex text-sm font-semibold no-underline">
+            Learning Quest
+          </Link>
           <a
             href="https://tanstack.com/start/latest/docs/framework/react/overview"
             target="_blank"
@@ -119,6 +122,9 @@ export default function Header() {
           <div className="flex flex-wrap gap-5 border-t border-[var(--line)] mt-4 pt-4 px-3 text-sm">
             <Link to="/" hash="topics" onClick={() => setMobileMenuOpen(false)}>
               All topics
+            </Link>
+            <Link to="/gamification" onClick={() => setMobileMenuOpen(false)}>
+              Learning Quest
             </Link>
             <Link to="/about" onClick={() => setMobileMenuOpen(false)}>
               About the project
