@@ -103,12 +103,20 @@ export const practiceQuestions = [
 }[]
 
 export type QuestionId = (typeof practiceQuestions)[number]['id']
+export type ReviewSchedule = {
+  stage: 0 | 1 | 2 | 3 | 4
+  lastReviewed: string
+  due: string
+}
+const reviewIntervals = [0, 1, 3, 7, 14] as const
 export type GameProgress = {
   version: 1
   mastered: QuestionId[]
   practiceDays: Record<string, QuestionId[]>
   dailyGoal: 1 | 2 | 3
   weeklyGoal: 3 | 5 | 7
+  saved: QuestionId[]
+  reviews: Partial<Record<QuestionId, ReviewSchedule>>
 }
 
 export function emptyGameProgress(): GameProgress {
@@ -118,6 +126,8 @@ export function emptyGameProgress(): GameProgress {
     practiceDays: {},
     dailyGoal: 2,
     weeklyGoal: 3,
+    saved: [],
+    reviews: {},
   }
 }
 
@@ -174,9 +184,37 @@ export function parseGameProgress(raw: string, today: string): GameProgress {
         if (ids.length) practiceDays[day] = ids
       }
     }
+    const reviews: GameProgress['reviews'] = {}
+    if (validDay(today) && data.reviews && typeof data.reviews === 'object') {
+      for (const { id } of practiceQuestions) {
+        const entry = (data.reviews as Record<string, unknown>)[id]
+        if (!entry || typeof entry !== 'object') continue
+        const { stage, lastReviewed, due } = entry as Record<string, unknown>
+        if (
+          typeof stage !== 'number' ||
+          !Number.isInteger(stage) ||
+          stage < 0 ||
+          stage > 4 ||
+          typeof lastReviewed !== 'string' ||
+          !validDay(lastReviewed) ||
+          lastReviewed > today ||
+          typeof due !== 'string' ||
+          !validDay(due) ||
+          due !== shiftDay(lastReviewed, reviewIntervals[stage])
+        )
+          continue
+        reviews[id] = {
+          stage: stage as ReviewSchedule['stage'],
+          lastReviewed,
+          due,
+        }
+      }
+    }
     return {
       version: 1,
       mastered: knownQuestions(data.mastered),
+      saved: knownQuestions(data.saved),
+      reviews,
       practiceDays,
       dailyGoal:
         data.dailyGoal === 1 || data.dailyGoal === 3 ? data.dailyGoal : 2,
@@ -208,6 +246,78 @@ export function answerQuestion(
       [today]: todays.includes(id) ? todays : [...todays, id],
     },
   }
+}
+
+// Correct answers only advance a due review once per day. Early practice keeps
+// the existing date, while a miss brings the check back into today's queue.
+export function recordAnswer(
+  progress: GameProgress,
+  id: QuestionId,
+  choice: number,
+  today: string,
+): GameProgress {
+  const question = practiceQuestions.find((item) => item.id === id)
+  if (
+    !question ||
+    !validDay(today) ||
+    !Number.isInteger(choice) ||
+    choice < 0 ||
+    choice >= question.options.length
+  )
+    return progress
+  const correct = question.answer === choice
+  const current = progress.reviews[id]
+  const rewarded = answerQuestion(progress, id, choice, today)
+  if (
+    correct &&
+    current &&
+    (current.due > today ||
+      (current.lastReviewed === today && current.stage > 0))
+  )
+    return rewarded
+  const stage = (
+    correct ? Math.min((current?.stage ?? 0) + 1, 4) : 0
+  ) as ReviewSchedule['stage']
+  return {
+    ...rewarded,
+    reviews: {
+      ...progress.reviews,
+      [id]: {
+        stage,
+        lastReviewed: today,
+        due: shiftDay(today, reviewIntervals[stage]),
+      },
+    },
+  }
+}
+
+export function toggleSavedQuestion(
+  progress: GameProgress,
+  id: QuestionId,
+): GameProgress {
+  if (!practiceQuestions.some((question) => question.id === id)) return progress
+  return {
+    ...progress,
+    saved: progress.saved.includes(id)
+      ? progress.saved.filter((item) => item !== id)
+      : [...progress.saved, id],
+  }
+}
+
+export function dueQuestions(progress: GameProgress, today: string) {
+  if (!validDay(today)) return []
+  return practiceQuestions.filter(({ id }) => {
+    const review = progress.reviews[id]
+    return review ? review.due <= today : progress.mastered.includes(id)
+  })
+}
+
+export function practiceHistory(progress: GameProgress, today: string) {
+  if (!validDay(today)) return []
+  return Array.from({ length: 28 }, (_, index) => {
+    const day = shiftDay(today, index - 27)
+    return { day, questions: knownQuestions(progress.practiceDays[day]) }
+  })
 }
 
 export const xpPerTopic = {
@@ -292,13 +402,16 @@ export function practiceSummary(progress: GameProgress, today: string) {
   return { streak, todayCount: days[today]?.length ?? 0, week }
 }
 
-export type PracticeFocus = 'all' | 'unmastered' | 'today'
+export type PracticeFocus = 'all' | 'unmastered' | 'today' | 'due' | 'saved'
 
 export function focusedQuestions(
   progress: GameProgress,
   today: string,
   focus: PracticeFocus,
 ) {
+  if (focus === 'due') return dueQuestions(progress, today)
+  if (focus === 'saved')
+    return practiceQuestions.filter(({ id }) => progress.saved.includes(id))
   return practiceQuestions.filter((question) =>
     focus === 'unmastered'
       ? !progress.mastered.includes(question.id)
