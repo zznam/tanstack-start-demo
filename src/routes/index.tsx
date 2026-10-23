@@ -136,6 +136,9 @@ function HomePage() {
               All topics complete. Revisit a lab below.
             </p>
           )}
+          <Link to="/gamification" className="demo-button demo-button-secondary no-underline mt-5">
+            <Sparkles className="size-4" />View XP & achievements
+          </Link>
         </aside>
       </section>
 

@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
+import { Route as GamificationRouteImport } from './routes/gamification'
 import { Route as UpdatesRouteImport } from './routes/updates'
 import { Route as FeaturesAgentDxRouteImport } from './routes/features.agent-dx'
 import { Route as FeaturesCachingRouteImport } from './routes/features.caching'
@@ -39,6 +40,11 @@ const IndexRoute = IndexRouteImport.update({
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GamificationRoute = GamificationRouteImport.update({
+  id: '/gamification',
+  path: '/gamification',
   getParentRoute: () => rootRouteImport,
 } as any)
 const UpdatesRoute = UpdatesRouteImport.update({
@@ -143,6 +149,7 @@ const FeaturesRoutingPostsPostIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/gamification': typeof GamificationRoute
   '/updates': typeof UpdatesRoute
   '/features/agent-dx': typeof FeaturesAgentDxRoute
   '/features/caching': typeof FeaturesCachingRoute
@@ -166,6 +173,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/gamification': typeof GamificationRoute
   '/updates': typeof UpdatesRoute
   '/features/agent-dx': typeof FeaturesAgentDxRoute
   '/features/caching': typeof FeaturesCachingRoute
@@ -190,6 +198,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/gamification': typeof GamificationRoute
   '/updates': typeof UpdatesRoute
   '/features/agent-dx': typeof FeaturesAgentDxRoute
   '/features/caching': typeof FeaturesCachingRoute
@@ -215,6 +224,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
+    | '/gamification'
     | '/updates'
     | '/features/agent-dx'
     | '/features/caching'
@@ -238,6 +248,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/about'
+    | '/gamification'
     | '/updates'
     | '/features/agent-dx'
     | '/features/caching'
@@ -261,6 +272,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/about'
+    | '/gamification'
     | '/updates'
     | '/features/agent-dx'
     | '/features/caching'
@@ -285,6 +297,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  GamificationRoute: typeof GamificationRoute
   UpdatesRoute: typeof UpdatesRoute
   FeaturesAgentDxRoute: typeof FeaturesAgentDxRoute
   FeaturesCachingRoute: typeof FeaturesCachingRoute
@@ -320,6 +333,13 @@ declare module '@tanstack/react-router' {
       path: '/about'
       fullPath: '/about'
       preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/gamification': {
+      id: '/gamification'
+      path: '/gamification'
+      fullPath: '/gamification'
+      preLoaderRoute: typeof GamificationRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/updates': {
@@ -461,6 +481,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  GamificationRoute: GamificationRoute,
   UpdatesRoute: UpdatesRoute,
   FeaturesAgentDxRoute: FeaturesAgentDxRoute,
   FeaturesCachingRoute: FeaturesCachingRoute,
