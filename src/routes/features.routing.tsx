@@ -1,3 +1,4 @@
+import { LessonProgress } from '../components/LessonProgress'
 import { createFileRoute, Link, useNavigate, useLocation, notFound } from '@tanstack/react-router'
 import { routingSearchSchema, type RoutingSearch } from '../utils/postSchemas'
 import { useEffect, useState, useTransition } from 'react'
@@ -340,6 +341,7 @@ export const Route = createFileRoute('/features/routing')({
 })`}
         />
       </div>
+      <LessonProgress id="routing" />
     </div>
   )
 }

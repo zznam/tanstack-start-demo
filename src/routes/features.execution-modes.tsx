@@ -1,3 +1,4 @@
+import { LessonProgress } from '../components/LessonProgress'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useState, useEffect } from 'react'
 import { Split, Server, Monitor, Cpu, Check, Layers } from 'lucide-react'
@@ -259,6 +260,7 @@ function ExecutionModesPage() {
           </table>
         </div>
       </div>
+      <LessonProgress id="execution-modes" />
     </div>
   )
 }

@@ -1,3 +1,4 @@
+import { LessonProgress } from '../components/LessonProgress'
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
 import {
@@ -227,6 +228,7 @@ const origin = getOrigin()`}
           </div>
         </div>
       </div>
+      <LessonProgress id="isomorphic" />
     </div>
   )
 }

@@ -12,6 +12,12 @@ export default function Header() {
   const pathname = useRouterState({
     select: (state) => state.location.pathname,
   })
+  const locationHref = useRouterState({
+    select: (state) => state.location.href,
+  })
+  useEffect(() => {
+    setMobileMenuOpen(false)
+  }, [locationHref])
   useEffect(() => {
     if (!mobileMenuOpen) return
     const onKeyDown = (event: KeyboardEvent) => {
@@ -43,6 +49,7 @@ export default function Header() {
       >
         <Link
           to="/"
+          onClick={() => setMobileMenuOpen(false)}
           className="inline-flex items-center gap-2.5 no-underline text-[var(--sea-ink)] font-bold text-sm"
         >
           <span className="brand-symbol">
@@ -57,11 +64,12 @@ export default function Header() {
           <Link
             to="/"
             hash="topics"
+            onClick={() => setMobileMenuOpen(false)}
             className="hidden md:inline-flex text-sm font-semibold no-underline"
           >
             All topics
           </Link>
-          <Link to="/gamification" className="hidden md:inline-flex text-sm font-semibold no-underline">
+          <Link to="/gamification" onClick={() => setMobileMenuOpen(false)} className="hidden md:inline-flex text-sm font-semibold no-underline">
             Learning Quest
           </Link>
           <a

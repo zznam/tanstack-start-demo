@@ -1,3 +1,4 @@
+import { LessonProgress } from '../components/LessonProgress'
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
 import {
@@ -215,6 +216,7 @@ updateUserData({ data: { email: 'user@test.com', teamId: 'team_1' } })`,
           </li>
         </ul>
       </div>
+      <LessonProgress id="agent-dx" />
     </div>
   )
 }

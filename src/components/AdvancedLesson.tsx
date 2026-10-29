@@ -1,16 +1,13 @@
 import type { ReactNode } from 'react'
 import {
   ArrowLeft,
-  ArrowRight,
-  CheckCircle2,
-  Circle,
   Clock,
   GraduationCap,
 } from 'lucide-react'
 import { Link } from '@tanstack/react-router'
 import { learningTopics } from '../utils/learningTopics'
 import type { TopicId } from '../utils/learningTopics'
-import { useLearningProgress } from '../utils/useLearningProgress'
+import { LessonProgress } from './LessonProgress'
 import { TopicLink } from './TopicLink'
 
 export function AdvancedLesson({
@@ -31,9 +28,6 @@ export function AdvancedLesson({
   docs: { label: string; href: string }[]
 }) {
   const topic = learningTopics.find((item) => item.id === id)!
-  const { completed, toggle } = useLearningProgress()
-  const done = completed.includes(id)
-  const next = learningTopics[learningTopics.indexOf(topic) + 1]
   return (
     <div className="demo-page space-y-8">
       <header>
@@ -94,48 +88,7 @@ export function AdvancedLesson({
           ))}
         </div>
       </section>
-      <footer className="demo-panel flex flex-wrap items-center justify-between gap-5">
-        <div>
-          <h2 className="font-bold mb-1">Keep your learning moving</h2>
-          <p className="demo-muted text-sm">
-            Progress stays in this browser. If storage is blocked, it lasts for
-            this visit.
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-3">
-          <button
-            type="button"
-            className="demo-button"
-            aria-pressed={done}
-            onClick={() => toggle(id)}
-          >
-            {done ? (
-              <CheckCircle2 className="size-4" />
-            ) : (
-              <Circle className="size-4" />
-            )}
-            {done ? 'Completed' : 'Mark as complete'}
-          </button>
-          {next ? (
-            <TopicLink
-              topic={next}
-              className="demo-button demo-button-secondary no-underline"
-            >
-              Next lab
-              <ArrowRight className="size-4" />
-            </TopicLink>
-          ) : (
-            <Link
-              to="/"
-              hash="topics"
-              className="demo-button demo-button-secondary no-underline"
-            >
-              Back to topics
-              <ArrowRight className="size-4" />
-            </Link>
-          )}
-        </div>
-      </footer>
+      <LessonProgress id={id} />
     </div>
   )
 }

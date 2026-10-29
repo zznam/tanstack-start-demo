@@ -1,5 +1,5 @@
 import { createFileRoute, useRouter, Link } from '@tanstack/react-router'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   PlusCircle,
   Send,
@@ -17,6 +17,7 @@ import {
 } from '../utils/serverFns'
 import { FeatureBadge } from '../components/FeatureBadge'
 import { CodeBlock } from '../components/CodeBlock'
+import { LessonProgress } from '../components/LessonProgress'
 import { createPostSchema } from '../utils/postSchemas'
 import type { Post } from '../utils/postsData'
 
@@ -41,6 +42,8 @@ function ServerFunctionsPage() {
   const [author, setAuthor] = useState('')
   const [excerpt, setExcerpt] = useState('')
   const [content, setContent] = useState('')
+  // Keep edits made while an earlier submission is awaiting its response.
+  const draftRevision = useRef(0)
 
   // Status & Telemetry
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -60,6 +63,7 @@ function ServerFunctionsPage() {
       return
     }
     setIsSubmitting(true)
+    const submittedRevision = draftRevision.current
     const startTime = performance.now()
 
     try {
@@ -80,10 +84,13 @@ function ServerFunctionsPage() {
       if (response.success && response.post) {
         setPosts((prev) => [response.post, ...prev])
         await router.invalidate()
-        setFormSuccess(`Post "${response.post.title}" created via typed RPC in ${elapsed}ms!`)
-        setTitle('')
-        setExcerpt('')
-        setContent('')
+        const hasNewEdits = draftRevision.current !== submittedRevision
+        setFormSuccess(`Post "${response.post.title}" created via typed RPC in ${elapsed}ms!${hasNewEdits ? ' Your newer draft edits were kept.' : ''}`)
+        if (!hasNewEdits) {
+          setTitle('')
+          setExcerpt('')
+          setContent('')
+        }
       }
     } catch (err) {
       setFormError(err instanceof Error ? err.message : 'Validation or Server RPC error occurred')
@@ -183,7 +190,12 @@ function ServerFunctionsPage() {
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form
+              onSubmit={handleSubmit}
+              onChangeCapture={() => { draftRevision.current += 1 }}
+              aria-busy={isSubmitting}
+              className="space-y-4"
+            >
               <div>
                 <label htmlFor="post-title" className="block text-xs font-semibold text-[var(--sea-ink)] mb-1">
                   Post Title (min 4 chars)
@@ -365,6 +377,7 @@ export const createPostMutation = createServerFn({ method: 'POST' })
 const result = await createPostMutation({ data: { title, content } })`}
         />
       </div>
+      <LessonProgress id="server-functions" />
     </div>
   )
 }
