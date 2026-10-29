@@ -11,6 +11,13 @@ export type LearningUpdate = {
 
 export const recentChanges: LearningUpdate[] = [
   {
+    id: 'continuous-learning',
+    date: '2026-10-30',
+    title: 'Finish each lesson without losing your place',
+    summary: 'Mark any topic complete and continue directly to the next lesson. Storage failures keep your progress for this visit, navigation menus close as you move, and article submissions preserve newer draft edits.',
+    topics: ['routing', 'execution-modes', 'server-functions'],
+  },
+  {
     id: 'outbox-delivery',
     date: '2026-10-23',
     title: 'Follow an order from commit to invoice',

@@ -84,6 +84,11 @@ body,
   min-height: 100%;
 }
 
+html {
+  /* Keep focused controls and anchor targets clear of the sticky navigation. */
+  scroll-padding-block-start: 5rem;
+}
+
 body {
   margin: 0;
   color: var(--sea-ink);
@@ -319,9 +324,11 @@ pre code {
   cursor: pointer;
 }
 
-.demo-button:hover {
-  transform: translateY(-1px);
-  background: color-mix(in oklab, var(--lagoon) 30%, var(--surface-strong));
+@media (hover: hover) and (pointer: fine) {
+  .demo-button:hover {
+    transform: translateY(-1px);
+    background: color-mix(in oklab, var(--lagoon) 30%, var(--surface-strong));
+  }
 }
 
 .demo-button:disabled {

@@ -45,7 +45,7 @@ function HomePage() {
   const incompleteOnly = search.incomplete ?? false
   const updateFilters = (patch: Partial<typeof search>, replace = false) =>
     navigate({ search: (previous) => ({ ...previous, ...patch }), replace, resetScroll: false })
-  const { completed, toggle } = useLearningProgress()
+  const { completed, toggle, temporary } = useLearningProgress()
   const topics = filterTopics(query, level, incompleteOnly, completed)
   const next = learningTopics.find((topic) => !completed.includes(topic.id))
   const reset = () => navigate({ search: {}, resetScroll: false })
@@ -108,8 +108,10 @@ function HomePage() {
             max={learningTopics.length}
             aria-label="Learning progress"
           />
-          <p className="demo-muted text-xs mt-3 mb-6">
-            Saved in this browser when storage is available.
+          <p className="demo-muted text-xs mt-3 mb-6" role={temporary ? 'status' : undefined}>
+            {temporary
+              ? 'Progress is saved for this visit only. Browser storage is unavailable; reloading or closing this tab may lose your changes.'
+              : 'Saved in this browser when storage is available.'}
           </p>
           {next ? (
             <>

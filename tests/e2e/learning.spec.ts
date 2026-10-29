@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
+import { recentChanges } from '../../src/utils/recentChanges'
 
 const workspace = () => crypto.randomUUID()
 
@@ -32,7 +33,7 @@ test('recent changes connect to working lessons from the navigation menu', async
   await page.getByRole('button', { name: 'Toggle navigation menu' }).click()
   await page.locator('#topic-navigation').getByRole('link', { name: 'What’s new' }).click()
   await expect(page.getByRole('heading', { name: 'What’s new in the lab' })).toBeVisible()
-  await expect(page.getByRole('list', { name: 'Recent app updates' }).locator(':scope > li')).toHaveCount(6)
+  await expect(page.getByRole('list', { name: 'Recent app updates' }).locator(':scope > li')).toHaveCount(recentChanges.length)
   await page.getByRole('link', { name: 'Caching & revalidation', exact: true }).click()
   await expect(page.getByTestId('cache-loader')).toContainText('Revision 1')
 })

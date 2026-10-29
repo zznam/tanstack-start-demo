@@ -1,3 +1,4 @@
+import { LessonProgress } from '../components/LessonProgress'
 import { createFileRoute, defer, Await, useRouter } from '@tanstack/react-router'
 import { Suspense, useState, useEffect } from 'react'
 import { Zap, RefreshCw, CheckCircle2, Loader2, Sparkles } from 'lucide-react'
@@ -178,6 +179,7 @@ export const Route = createFileRoute('/my-stream')({
 })`}
         />
       </div>
+      <LessonProgress id="streaming" />
     </div>
   )
 }

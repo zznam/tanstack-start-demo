@@ -1,0 +1,87 @@
+import { expect, test } from '@playwright/test'
+import { learningTopics } from '../../src/utils/learningTopics'
+
+test('navigation menu closes after keyboard navigation and browser history', async ({ page }) => {
+  await page.goto('/about')
+  const menu = page.getByRole('button', { name: 'Toggle navigation menu' })
+  await menu.click()
+  await expect(menu).toHaveAttribute('aria-expanded', 'true')
+  const brand = page.getByRole('navigation', { name: 'Main navigation' })
+    .getByRole('link', { name: 'TanStack Learning Lab', exact: true })
+  await brand.focus()
+  await page.keyboard.press('Enter')
+  await expect(page).toHaveURL((url) => url.pathname === '/')
+  await expect(menu).toHaveAttribute('aria-expanded', 'false')
+  await expect(page.locator('#topic-navigation')).toHaveCount(0)
+
+  await menu.click()
+  await page.goBack()
+  await expect(page).toHaveURL((url) => url.pathname === '/about')
+  await expect(menu).toHaveAttribute('aria-expanded', 'false')
+  await menu.click()
+  await page.goForward()
+  await expect(page).toHaveURL((url) => url.pathname === '/')
+  await expect(menu).toHaveAttribute('aria-expanded', 'false')
+})
+
+test('all foundation and pattern lessons offer completion and a continuous next-topic path', async ({ page }) => {
+  await page.goto('/features/routing')
+  const topics = learningTopics.filter((topic) => topic.level !== 'Advanced')
+  for (const topic of topics) {
+    await expect(page).toHaveURL((url) => url.pathname === topic.to)
+    const progress = page.getByRole('region', { name: 'Lesson progress', exact: true })
+    await expect(progress).toHaveCount(1)
+    await expect(progress.getByRole('button', { name: 'Mark as complete', exact: true }))
+      .toHaveAttribute('aria-pressed', 'false')
+    await expect(progress.getByRole('link', { name: 'All learning topics', exact: true })).toHaveAttribute('href', '/#topics')
+    await progress.getByRole('link', { name: 'Next topic', exact: true }).click()
+  }
+  await expect(page).toHaveURL((url) => url.pathname === '/features/caching')
+  await expect(page.getByRole('region', { name: 'Lesson progress' })
+    .getByRole('link', { name: 'Next lab', exact: true })).toBeVisible()
+})
+
+test('lesson completion survives reload and onward navigation, awards XP and can be undone', async ({ page }, testInfo) => {
+  await page.goto('/features/routing')
+  await page.getByRole('button', { name: 'Mark as complete', exact: true }).click()
+  await page.reload()
+  await expect(page.getByRole('button', { name: 'Completed', exact: true }))
+    .toHaveAttribute('aria-pressed', 'true')
+  await page.getByRole('region', { name: 'Lesson progress', exact: true })
+    .screenshot({ path: testInfo.outputPath('lesson-progress.png') })
+  await page.getByRole('link', { name: 'Next topic', exact: true }).click()
+  await expect(page).toHaveURL((url) => url.pathname === '/features/execution-modes')
+  await page.getByRole('button', { name: 'Mark as complete', exact: true }).click()
+  await page.getByRole('link', { name: 'All learning topics', exact: true }).click()
+  await expect(page.getByRole('progressbar', { name: 'Learning progress', exact: true }))
+    .toHaveAttribute('value', '2')
+  await page.getByRole('link', { name: 'View XP & achievements', exact: true }).click()
+  await expect(page.getByTestId('total-xp')).toHaveText('200 XP')
+
+  await page.getByRole('button', { name: 'Toggle navigation menu' }).click()
+  await page.locator('#topic-navigation').getByRole('link', { name: 'Type-safe routing', exact: true }).click()
+  await page.getByRole('button', { name: 'Completed', exact: true }).click()
+  await expect(page.getByRole('button', { name: 'Mark as complete', exact: true }))
+    .toHaveAttribute('aria-pressed', 'false')
+  await page.getByRole('button', { name: 'Toggle navigation menu' }).click()
+  await page.locator('#topic-navigation').getByRole('link', { name: 'Learning Quest', exact: true }).click()
+  await expect(page.getByTestId('total-xp')).toHaveText('100 XP')
+})
+
+test('lesson and catalog explain when completion can only be kept for this visit', async ({ page }) => {
+  await page.goto('/features/routing')
+  await page.evaluate(() => {
+    Storage.prototype.setItem = () => { throw new Error('Storage unavailable') }
+  })
+  await page.getByRole('button', { name: 'Mark as complete', exact: true }).click()
+  await expect(page.getByRole('region', { name: 'Lesson progress' }).getByRole('status'))
+    .toContainText('Progress is saved for this visit only')
+  await page.getByRole('link', { name: 'Next topic', exact: true }).click()
+  await expect(page.getByRole('region', { name: 'Lesson progress' }).getByRole('status'))
+    .toContainText('reloading or closing this tab may lose your changes')
+  await page.getByRole('link', { name: 'All learning topics', exact: true }).click()
+  await expect(page.getByLabel('Your learning path').getByRole('status'))
+    .toContainText('Progress is saved for this visit only')
+  await expect(page.getByRole('progressbar', { name: 'Learning progress', exact: true }))
+    .toHaveAttribute('value', '1')
+})

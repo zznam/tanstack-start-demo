@@ -1,3 +1,4 @@
+import { LessonProgress } from '../components/LessonProgress'
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
 import {
@@ -213,6 +214,7 @@ export const handleUserSession = createServerFn({ method: 'POST' }).handler(asyn
 })`}
         />
       </div>
+      <LessonProgress id="server-context" />
     </div>
   )
 }

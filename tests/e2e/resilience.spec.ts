@@ -57,17 +57,29 @@ test('scenario runner locks settings in flight and recovers from transport failu
     await route.abort()
   })
   const run = page.getByRole('button', { name: 'Run scenario', exact: true })
-  await run.click()
-  await expect(page.getByLabel('Carrier behavior')).toBeDisabled()
-  await expect(
-    page.getByRole('button', { name: 'Running scenario…' }),
-  ).toBeDisabled()
-  release()
-  await expect(page.getByRole('alert')).toContainText(
-    'every run starts with fresh sample data',
-  )
-  await expect(run).toBeEnabled()
-  await page.unroute('**/_serverFn/**')
+  try {
+    await run.click()
+    await expect(page.getByLabel('Carrier behavior')).toBeDisabled()
+    await expect(
+      page.getByRole('button', { name: 'Running scenario…' }),
+    ).toBeDisabled()
+    release()
+    await expect(page.getByRole('alert')).toContainText(
+      'every run starts with fresh sample data',
+    )
+    await expect(run).toBeEnabled()
+  } finally {
+    release()
+    await page.unroute('**/_serverFn/**')
+  }
+  // Native focus/scroll alignment must leave the retry action below the sticky
+  // navigation, including on touch screens after the button is enabled again.
+  await run.focus()
+  await run.evaluate((button) => button.scrollIntoView({ block: 'start' }))
+  await expect.poll(() => run.evaluate((button) => {
+    const header = document.querySelector('body > header')!
+    return button.getBoundingClientRect().top >= header.getBoundingClientRect().bottom
+  })).toBe(true)
   await run.click()
   await expect(page.getByTestId('metric-carrier-attempts')).toHaveText('8')
 })

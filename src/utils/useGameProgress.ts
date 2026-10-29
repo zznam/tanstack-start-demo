@@ -6,34 +6,12 @@ import {
   toggleSavedQuestion,
 } from './gamification'
 import type { GameProgress, QuestionId } from './gamification'
+import { createBrowserProgressStore } from './browserProgressStore'
 
-const STORAGE_KEY = 'tanstack-learning-game-v1'
-const CHANGE_EVENT = 'learning-game-change'
-let memorySnapshot: string | undefined
-
-function getSnapshot() {
-  if (memorySnapshot !== undefined) return memorySnapshot
-  try {
-    return localStorage.getItem(STORAGE_KEY) ?? ''
-  } catch {
-    return ''
-  }
-}
-
-function subscribe(onChange: () => void) {
-  const onStorage = (event: StorageEvent) => {
-    if (event.key === STORAGE_KEY || event.key === null) {
-      memorySnapshot = undefined
-      onChange()
-    }
-  }
-  window.addEventListener('storage', onStorage)
-  window.addEventListener(CHANGE_EVENT, onChange)
-  return () => {
-    window.removeEventListener('storage', onStorage)
-    window.removeEventListener(CHANGE_EVENT, onChange)
-  }
-}
+const store = createBrowserProgressStore(
+  'tanstack-learning-game-v1',
+  'learning-game-change',
+)
 
 function subscribeDay(onChange: () => void) {
   const timer = window.setInterval(onChange, 30_000)
@@ -48,24 +26,20 @@ function subscribeDay(onChange: () => void) {
 
 function save(update: (current: GameProgress, today: string) => GameProgress) {
   const today = localDay()
-  const next = update(parseGameProgress(getSnapshot(), today), today)
-  const serialized = JSON.stringify(next)
-  try {
-    localStorage.setItem(STORAGE_KEY, serialized)
-    memorySnapshot = undefined
-  } catch {
-    memorySnapshot = serialized
-  }
-  window.dispatchEvent(new Event(CHANGE_EVENT))
+  store.save((raw) => JSON.stringify(update(parseGameProgress(raw, today), today)))
 }
 
 export function useGameProgress() {
-  const raw = useSyncExternalStore(subscribe, getSnapshot, () => '')
+  const { raw, temporary } = useSyncExternalStore(
+    store.subscribe,
+    store.getSnapshot,
+    store.getServerSnapshot,
+  )
   const today = useSyncExternalStore(subscribeDay, localDay, () => '')
   return {
     progress: parseGameProgress(raw, today),
     today,
-    temporary: memorySnapshot !== undefined,
+    temporary,
     answer: (id: QuestionId, choice: number) =>
       save((current, day) => recordAnswer(current, id, choice, day)),
     toggleSaved: (id: QuestionId) =>

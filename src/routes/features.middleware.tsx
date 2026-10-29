@@ -1,3 +1,4 @@
+import { LessonProgress } from '../components/LessonProgress'
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
 import {
@@ -215,6 +216,7 @@ export const timingMiddleware = createMiddleware({ type: 'function' })
   })`}
         />
       </div>
+      <LessonProgress id="middleware" />
     </div>
   )
 }
