@@ -24,6 +24,7 @@ import {
   xpPerTopic,
 } from '../utils/gamification'
 import { useGameProgress } from '../utils/useGameProgress'
+import type { QuestionId } from '../utils/gamification'
 import { useLearningProgress } from '../utils/useLearningProgress'
 
 export const Route = createFileRoute('/gamification')({
@@ -54,6 +55,10 @@ function GamificationPage() {
   const [badgeFilter, setBadgeFilter] = useState<'all' | 'earned' | 'locked'>(
     'all',
   )
+  const [practiceRequest, setPracticeRequest] = useState<{
+    id: QuestionId
+    sequence: number
+  } | null>(null)
   const rewards = getRewards(completed, progress.mastered)
   const activity = practiceSummary(progress, today)
   const badgeCount = rewards.badges.filter(
@@ -252,8 +257,16 @@ function GamificationPage() {
         progress={progress}
         today={today}
         onAnswer={answer}
+        onPractice={(id) =>
+          setPracticeRequest((current) => ({
+            id,
+            sequence: (current?.sequence ?? 0) + 1,
+          }))
+        }
       />
       <PracticeWorkshop
+        key={practiceRequest?.sequence ?? 0}
+        initialQuestion={practiceRequest?.id}
         progress={progress}
         today={today}
         onAnswer={answer}

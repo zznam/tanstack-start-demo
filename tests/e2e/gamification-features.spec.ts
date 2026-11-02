@@ -231,7 +231,7 @@ test('challenge and weekly targets work with blocked storage and restart the rou
 
 for (const colorScheme of ['light', 'dark'] as const) {
   test(`active challenge supports keyboard, accessibility and narrow layouts in ${colorScheme} mode`, async ({
-    page,
+    page, browserName,
   }, testInfo) => {
     await page.emulateMedia({ colorScheme, reducedMotion: 'reduce' })
     await page.clock.install({ time: new Date(`${day}T12:00:00`) })
@@ -247,7 +247,7 @@ for (const colorScheme of ['light', 'dark'] as const) {
     await expect(challenge.getByRole('heading', { level: 3 })).toBeFocused()
     await challenge.getByRole('radio').first().focus()
     await page.keyboard.press('Space')
-    await page.keyboard.press('Tab')
+    await page.keyboard.press(process.platform === 'darwin' && browserName === 'webkit' ? 'Alt+Tab' : 'Tab')
     await expect(
       challenge.getByRole('button', { name: 'Check answer', exact: true }),
     ).toBeFocused()

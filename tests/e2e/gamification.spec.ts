@@ -287,7 +287,7 @@ for (const colorScheme of ['light', 'dark'] as const) {
 }
 
 test('knowledge checks work with keyboard selection and submission', async ({
-  page,
+  page, browserName,
 }, testInfo) => {
   await page.goto('/gamification')
   const first = page.getByRole('radio', {
@@ -302,7 +302,7 @@ test('knowledge checks work with keyboard selection and submission', async ({
       exact: true,
     }),
   ).toBeChecked()
-  await page.keyboard.press('Tab')
+  await page.keyboard.press(process.platform === 'darwin' && browserName === 'webkit' ? 'Alt+Tab' : 'Tab')
   await expect(
     page.getByRole('button', { name: 'Check answer', exact: true }),
   ).toBeFocused()

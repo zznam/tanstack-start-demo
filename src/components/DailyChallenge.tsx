@@ -10,10 +10,12 @@ export function DailyChallenge({
   progress,
   today,
   onAnswer,
+  onPractice,
 }: {
   progress: GameProgress
   today: string
   onAnswer: (id: QuestionId, choice: number) => void
+  onPractice: (id: QuestionId) => void
 }) {
   const questions = dailyChallenge(today)
   const [step, setStep] = useState(-1)
@@ -93,18 +95,27 @@ export function DailyChallenge({
                 {!results[index] && (
                   <p className="text-sm demo-muted">{item.explanation}</p>
                 )}
-                <TopicLink
-                  topic={
-                    learningTopics.find((topic) => topic.id === item.topic)!
-                  }
-                  className="text-sm"
-                >
-                  Review lesson:{' '}
-                  {
-                    learningTopics.find((topic) => topic.id === item.topic)!
-                      .title
-                  }
-                </TopicLink>
+                <div className="flex flex-wrap items-center gap-3">
+                  <button
+                    type="button"
+                    className="demo-button demo-button-secondary"
+                    onClick={() => onPractice(item.id)}
+                  >
+                    Practice check: {item.title}
+                  </button>
+                  <TopicLink
+                    topic={
+                      learningTopics.find((topic) => topic.id === item.topic)!
+                    }
+                    className="text-sm"
+                  >
+                    Review lesson:{' '}
+                    {
+                      learningTopics.find((topic) => topic.id === item.topic)!
+                        .title
+                    }
+                  </TopicLink>
+                </div>
               </li>
             ))}
           </ul>

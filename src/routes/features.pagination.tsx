@@ -79,7 +79,9 @@ function PaginationExperiment({
         })
         setMessage(
           event.title +
-            ' inserted at the beginning. Loaded rows stay unchanged; now load the next page.',
+            (more
+              ? ' inserted at the beginning. Loaded rows stay unchanged; now load the next page.'
+              : ' inserted at the beginning. Restart pagination to see the new event.'),
         )
       } else if (action === 'delete') {
         const removed = await deleteNewestFeedEvent({
@@ -90,7 +92,9 @@ function PaginationExperiment({
             ? 'The server feed is empty.'
             : 'Event ' +
                 removed +
-                ' deleted from the beginning. Load the next page to compare what each method skips.',
+                (more
+                  ? ' deleted from the beginning. Load the next page to compare what each method skips.'
+                  : ' deleted from the beginning. Restart pagination to see the current feed.'),
         )
       } else {
         const restart = action === 'restart'
@@ -328,6 +332,12 @@ function FeedRows({
         {duplicates} repeated {duplicates === 1 ? 'ID' : 'IDs'} · {rows.length}{' '}
         rows received
       </p>
+      {rows.length === 0 && (
+        <p className="demo-muted text-sm">
+          No events to display. Insert a new event, then restart pagination to
+          load it.
+        </p>
+      )}
       <ol className="space-y-2">
         {rows.map((row, index) => {
           const repeated = seen.has(row.id)
