@@ -240,6 +240,9 @@ for (const colorScheme of ['light', 'dark'] as const) {
       name: 'Daily challenge',
       exact: true,
     })
+    // SSR disables this control until the browser's local date is available.
+    // Focusing a disabled button is a no-op, so wait before keyboard activation.
+    await expect(challenge.getByRole('button', { name: 'Start daily challenge' })).toBeEnabled()
     await challenge
       .getByRole('button', { name: 'Start daily challenge' })
       .focus()
