@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { ArrowRight, Bookmark } from 'lucide-react'
 import { KnowledgeCheck } from './KnowledgeCheck'
 import {
@@ -17,14 +17,23 @@ export function PracticeWorkshop({
   today,
   onAnswer,
   onToggleSaved,
+  initialQuestion,
 }: {
   progress: GameProgress
   today: string
   onAnswer: (id: QuestionId, choice: number) => void
   onToggleSaved: (id: QuestionId) => void
+  initialQuestion?: QuestionId
 }) {
   const [focus, setFocus] = useState<PracticeFocus>('all')
-  const [selected, setSelected] = useState<QuestionId | null>(null)
+  const [selected, setSelected] = useState<QuestionId | null>(
+    initialQuestion ?? null,
+  )
+  const heading = useRef<HTMLHeadingElement>(null)
+
+  useEffect(() => {
+    if (initialQuestion) heading.current?.focus()
+  }, [initialQuestion])
   const candidates = focusedQuestions(progress, today, focus)
   const due = dueQuestions(progress, today)
   // Keep a submitted check visible so changing progress never removes its feedback.
@@ -50,7 +59,12 @@ export function PracticeWorkshop({
       <div className="flex flex-wrap justify-between items-end gap-4">
         <div>
           <p className="island-kicker mb-2">Learn by recalling</p>
-          <h2 id="practice-heading" className="text-2xl font-bold">
+          <h2
+            id="practice-heading"
+            ref={heading}
+            tabIndex={-1}
+            className="text-2xl font-bold"
+          >
             Knowledge checks
           </h2>
         </div>

@@ -1,0 +1,105 @@
+import { test, expect } from '@playwright/test'
+import { dailyChallenge, practiceQuestions } from '../../src/utils/gamification'
+import { learningTopics } from '../../src/utils/learningTopics'
+
+test('challenge results open the exact check for focused recovery without changing the round score', async ({ page }) => {
+  const day = '2026-10-23'
+  await page.clock.setFixedTime(new Date(`${day}T12:00:00`))
+  await page.goto('/gamification')
+  const practice = page.getByRole('region', { name: 'Knowledge checks', exact: true })
+  // A challenge recovery action must also work when the workshop has an empty filter.
+  await practice.getByRole('button', { name: 'Practice saved checks' }).click()
+  await expect(practice.getByRole('radio')).toHaveCount(0)
+
+  const challenge = page.getByRole('region', { name: 'Daily challenge', exact: true })
+  const questions = dailyChallenge(day)
+  await challenge.getByRole('button', { name: 'Start daily challenge' }).click()
+  for (const [index, question] of questions.entries()) {
+    await challenge.getByRole('radio').nth(index === 0 ? (question.answer + 1) % 3 : question.answer).check()
+    await challenge.getByRole('button', { name: 'Check answer', exact: true }).click()
+    await challenge.getByRole('button', { name: index === 2 ? 'See challenge results' : 'Next challenge check' }).click()
+  }
+  await expect(page.getByTestId('total-xp')).toHaveText('100 XP')
+  const recovery = challenge.getByRole('button', { name: `Practice check: ${questions[0].title}`, exact: true })
+  await recovery.focus()
+  await page.keyboard.press('Enter')
+  await expect(practice.getByRole('heading', { name: 'Knowledge checks', exact: true })).toBeFocused()
+  await expect(practice.getByLabel('Practice focus', { exact: true })).toHaveValue('all')
+  await expect(practice.getByRole('group', { name: questions[0].prompt, exact: true })).toBeVisible()
+  await practice.getByRole('radio').nth(questions[0].answer).check()
+  await practice.getByRole('button', { name: 'Check answer', exact: true }).click()
+  await expect(practice.getByRole('status')).toContainText('Correct! +50 XP unlocked.')
+  await expect(page.getByTestId('total-xp')).toHaveText('150 XP')
+  await expect(challenge.getByRole('heading', { name: 'Round complete · 2 / 3 correct' })).toBeVisible()
+
+  // Choosing the same result again starts a fresh attempt, without duplicate rewards.
+  await recovery.click()
+  await expect(practice.getByRole('heading', { name: 'Knowledge checks', exact: true })).toBeFocused()
+  await expect(practice.getByRole('radio').first()).toBeEnabled()
+  await expect(practice.getByRole('button', { name: 'Check answer', exact: true })).toBeDisabled()
+  await practice.getByRole('radio').nth(questions[0].answer).check()
+  await practice.getByRole('button', { name: 'Check answer', exact: true }).click()
+  await expect(practice.getByRole('status')).toContainText('XP already earned')
+  await expect(page.getByTestId('total-xp')).toHaveText('150 XP')
+  await expect(page.getByTestId('daily-count')).toHaveText('3 / 2 checks today')
+  await page.reload()
+  await expect(page.getByTestId('total-xp')).toHaveText('150 XP')
+  await expect(challenge.getByRole('button', { name: 'Start daily challenge' })).toBeVisible()
+})
+
+test('completing every lesson finishes all quests and undo restores the correct next lesson', async ({ page }) => {
+  await page.goto('/')
+  for (const topic of learningTopics) {
+    await page.getByRole('button', { name: `Mark complete: ${topic.title}`, exact: true }).click()
+  }
+  await page.getByRole('link', { name: 'View XP & achievements' }).click()
+  const quests = page.getByRole('region', { name: 'Lesson quests', exact: true })
+  await expect(quests.getByText('Quest complete!', { exact: true })).toHaveCount(3)
+  await expect(quests.getByRole('link', { name: 'Continue quest' })).toHaveCount(0)
+  const badges = page.getByRole('region', { name: 'Achievements', exact: true })
+  await badges.getByRole('button', { name: 'Locked', exact: true }).click()
+  await expect(badges.getByRole('article')).toHaveCount(1)
+  await expect(badges.getByRole('article', { name: 'Knowledge collector', exact: true })).toBeVisible()
+
+  await quests.getByRole('link', { name: 'Type-safe routing', exact: true }).click()
+  await page.getByRole('region', { name: 'Lesson progress', exact: true }).getByRole('button', { name: 'Completed', exact: true }).click()
+  await page.getByRole('link', { name: 'All learning topics', exact: true }).click()
+  await page.getByRole('link', { name: 'View XP & achievements' }).click()
+  const foundations = quests.getByRole('article', { name: 'Build your foundation', exact: true })
+  await expect(foundations.getByRole('link', { name: 'Continue quest' })).toHaveAttribute('href', /^\/features\/routing(?:\?|$)/)
+  await expect(quests.getByText('Quest complete!', { exact: true })).toHaveCount(2)
+  await badges.getByRole('button', { name: 'Locked', exact: true }).click()
+  await expect(badges.getByRole('article', { name: 'Foundations explorer', exact: true })).toBeVisible()
+  await page.reload()
+  await expect(foundations.getByRole('link', { name: 'Continue quest' })).toBeVisible()
+})
+
+test('alternating practice edits in two tabs preserve mastery, saved checks and goals', async ({ page, context }) => {
+  await page.goto('/gamification')
+  const other = await context.newPage()
+  await other.goto('/gamification')
+  const first = page.getByRole('region', { name: 'Knowledge checks', exact: true })
+  const second = other.getByRole('region', { name: 'Knowledge checks', exact: true })
+
+  await first.getByRole('button', { name: 'Save check', exact: true }).click()
+  await first.getByRole('radio').nth(practiceQuestions[0].answer).check()
+  await first.getByRole('button', { name: 'Check answer', exact: true }).click()
+  await expect(other.getByTestId('total-xp')).toHaveText('50 XP')
+  await second.getByLabel('Choose a check', { exact: true }).selectOption('1')
+  await second.getByRole('button', { name: 'Save check', exact: true }).click()
+  await second.getByRole('radio').nth(practiceQuestions[1].answer).check()
+  await second.getByRole('button', { name: 'Check answer', exact: true }).click()
+  await expect(page.getByTestId('total-xp')).toHaveText('100 XP')
+  await page.getByLabel('Daily goal', { exact: true }).selectOption('3')
+  await expect(other.getByLabel('Daily goal', { exact: true })).toHaveValue('3')
+  await other.getByLabel('Weekly goal', { exact: true }).selectOption('7')
+  await expect(page.getByLabel('Weekly goal', { exact: true })).toHaveValue('7')
+  await other.close()
+  await page.reload()
+  await expect(page.getByTestId('total-xp')).toHaveText('100 XP')
+  await expect(page.getByTestId('daily-count')).toHaveText('2 / 3 checks today')
+  await expect(page.getByLabel('Weekly goal', { exact: true })).toHaveValue('7')
+  await first.getByRole('button', { name: 'Practice saved checks' }).click()
+  await expect(first.getByLabel('Choose a check').locator('option')).toHaveCount(2)
+  await expect(first).toContainText('2 / 6 mastered')
+})

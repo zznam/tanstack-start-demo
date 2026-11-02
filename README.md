@@ -72,14 +72,20 @@ The runnable configuration targets Node/Nitro. Hosting examples describe options
 ```sh
 pnpm check       # regenerate routes, strict TypeScript, data regression tests
 pnpm build       # production client and SSR bundles
-pnpm exec playwright install chromium  # once, for browser tests
-pnpm test:e2e    # production server on 127.0.0.1:3100; desktop and touch mobile
+pnpm exec playwright install chromium firefox webkit  # once, for browser tests
+pnpm test:e2e    # production server; Chromium desktop/mobile, Firefox, WebKit
+pnpm test:e2e:chromium  # faster desktop and touch-mobile feedback
+pnpm test:e2e:report    # open the latest HTML report
 pnpm audit
 ```
 
 `pnpm verify` runs the checks, build, and browser tests in sequence. Port 3100 must be free. Browser tests exercise page rendering, accessibility scans, search/detail navigation, create/like RPCs, middleware telemetry, request metadata, error states, themes with blocked storage, selective SSR response contents, progressive streaming, topic discovery and progress persistence, gamification rewards and undo, quiz feedback and one-time XP, daily goals and midnight rollover, challenge scoring/replays and keyboard flow, focused-practice queues and empty states, spaced-review scheduling and miss recovery, saved-check lists and cross-tab sync, 28-day history selection and lesson navigation, weekly goals and Monday rollover, saved-progress migration, cross-tab practice sync and blocked storage, cache reuse/invalidation, optimistic rollback and conflict recovery, uncertain transport failures, parallel service degradation, idempotent retries after lost responses, concurrent deduplication, cursor/offset drift during mutations, pagination recovery, shipping retry budgets, circuit transitions, scenario transport recovery, atomic outbox writes, acknowledgement-loss redelivery, consumer deduplication, and retained failed events. The all-pages check derives lesson routes from the catalog. Advanced pages are checked in dark mode and at 320, 768, 1280, and 1920 pixels. Failures retain screenshots and traces under `test-results/`; the HTML report is in `playwright-report/`.
 
 Additional regressions cover lesson completion without returning to the catalog, keyboard/history menu dismissal, edits made during a pending article submission, and preserving existing progress when storage reads or writes fail mid-visit and another tab changes its saved data.
+
+The complete suite also checks keyboard skip navigation, cross-tab theme changes, clipboard recovery, literal rendering of submitted article text, recovery from failed route loaders, actual two-tab edit conflicts, committed writes with lost responses, sold-out receipt replay, and empty/exhausted feeds. Daily-challenge results can open the exact check in the practice workshop with keyboard focus; recovering a missed answer keeps the original round score and awards mastery XP only once.
+
+The [E2E guide](tests/e2e/README.md) maps journeys to suites and explains focused runs, test isolation, and failure artifacts. GitHub Actions runs the same checks, build, and browser tests for pull requests and main-branch pushes, with one isolated job per browser project and uploaded HTML reports and traces. CI rejects focused tests and flaky retries; locally tests run without retries.
 
 The targeted `postcss-selector-parser` override patches the parser used by Tailwind Typography. Keep it until Typography adopts a patched parser, then remove it and rerun the build and accessibility/browser checks.
 

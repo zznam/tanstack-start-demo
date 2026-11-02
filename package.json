@@ -14,6 +14,8 @@
     "typecheck": "tsc --noEmit",
     "test": "node --experimental-strip-types --test tests/*.test.ts",
     "test:e2e": "playwright test",
+    "test:e2e:chromium": "playwright test --project=desktop --project=mobile",
+    "test:e2e:report": "playwright show-report",
     "check": "pnpm generate-routes && pnpm typecheck && pnpm test",
     "verify": "pnpm check && pnpm build && pnpm test:e2e"
   },

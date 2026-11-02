@@ -8,7 +8,7 @@ export interface ErrorComponentProps {
   reset?: () => void
 }
 
-export function DefaultCatchBoundary({ error, reset }: ErrorComponentProps) {
+export function DefaultCatchBoundary({ error }: ErrorComponentProps) {
   const router = useRouter()
   const [showStack, setShowStack] = useState(false)
   const errorMessage = error instanceof Error ? error.message : String(error || 'Unknown application error')
@@ -58,11 +58,9 @@ export function DefaultCatchBoundary({ error, reset }: ErrorComponentProps) {
           <button
             type="button"
             onClick={() => {
-              if (reset) {
-                reset()
-              } else {
-                router.invalidate()
-              }
+              // Resetting only the React boundary leaves a failed loader in its
+              // error state. Invalidation reruns loaders and resets the boundary.
+              void router.invalidate()
             }}
             className="demo-button"
           >
