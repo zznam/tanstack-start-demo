@@ -15,12 +15,20 @@ concurrency:
 
 jobs:
   verify:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
-        project: [desktop, mobile, firefox, webkit]
+        include:
+          - project: desktop
+            os: ubuntu-latest
+          - project: mobile
+            os: ubuntu-latest
+          - project: firefox
+            os: ubuntu-latest
+          - project: webkit
+            os: macos-latest
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4

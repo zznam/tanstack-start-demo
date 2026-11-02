@@ -23,7 +23,7 @@ pnpm verify
 | Idempotency and pagination | `reliability`, `lab-journeys`: stable retry keys, payload conflicts, concurrent duplicates, sold-out replay, generation guards, cursor/offset drift, exhausted/empty feeds, isolated serverless walkthroughs |
 | Retry policies and event delivery | `resilience`, `outbox`: bounded retries/deadlines, circuit recovery, controls locked during requests, transport recovery, atomic producer/consumer transactions, redelivery, deduplication and poison events |
 
-All suites run in Chromium desktop (1440×900), Chromium touch mobile (375×812), Firefox desktop and WebKit desktop. Individual accessibility/layout journeys also cover 320, 768, 1280 and 1920 pixel widths. Mobile is browser emulation, not a physical-device test.
+All suites run in Chromium desktop (1440×900), Chromium touch mobile (375×812), Firefox desktop and WebKit desktop. CI uses Linux for Chromium/Firefox and macOS for WebKit to exercise Safari's native platform. Linux WPE WebKit currently stalls in date-controlled hydration tests and is not a verified target. Individual accessibility/layout journeys also cover 320, 768, 1280 and 1920 pixel widths. Mobile is browser emulation, not a physical-device test.
 
 ## Focused feedback and reports
 
@@ -43,7 +43,7 @@ Failures retain screenshots, traces and accessibility snapshots under `test-resu
 - Each test receives fresh browser storage. Multi-tab tests intentionally share one browser context.
 - Stateful labs use fresh UUID workspaces. Article tests create unique titles against the process-local store. One worker avoids ordering/timing interference in shared demo data and measured service scenarios.
 - Browser actions exercise real loaders and server functions. Network interception is reserved for deliberate latency/failure cases; response-loss tests let the server commit before dropping the response.
-- Calendar journeys fix the local date while leaving browser scheduling real, avoiding Linux WebKit hydration stalls under full timer emulation. Rollover checks cover focus refresh and the real 30-second subscription. Assertions wait on visible state/URLs rather than fixed sleep delays.
+- Calendar journeys fix the local date while leaving browser scheduling real. Rollover checks cover focus refresh and the real 30-second subscription. Assertions wait on visible state/URLs rather than fixed sleep delays.
 - Keyboard traversal uses Option+Tab on macOS WebKit, whose default Tab navigation skips links and buttons; other browsers and platforms use Tab. Focus and activation assertions remain the same.
 - Clipboard failure/success tests replace only the browser clipboard method to avoid relying on host OS permissions. They verify the submitted code/URL and user feedback, not the operating-system clipboard.
 - Tests verify the local Node deployment and in-memory models. They do not establish hosted/serverless deployment health, durable multi-instance storage, physical-device compatibility or complete accessibility conformance.
