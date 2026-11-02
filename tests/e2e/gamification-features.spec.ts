@@ -87,6 +87,7 @@ test('focused practice keeps feedback visible, advances through remaining checks
 }) => {
   await page.clock.setFixedTime(new Date(`${day}T12:00:00`))
   await page.goto('/gamification')
+  await expect(page.getByRole('button', { name: 'Start daily challenge' })).toBeEnabled()
   const practice = page.getByRole('region', {
     name: 'Knowledge checks',
     exact: true,
