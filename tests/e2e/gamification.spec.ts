@@ -1,3 +1,4 @@
+import { advanceCalendar } from './calendar'
 import { test, expect } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
 
@@ -202,7 +203,7 @@ test('corrupt and blocked storage still allow practice during client navigation'
 test('practice rolls over at local midnight and rewards mastered questions only once', async ({
   page,
 }) => {
-  await page.clock.install({ time: new Date('2026-10-23T23:59:00') })
+  await page.clock.setFixedTime(new Date('2026-10-23T23:59:00'))
   await page.goto('/gamification')
   await page
     .getByRole('radio', {
@@ -212,7 +213,7 @@ test('practice rolls over at local midnight and rewards mastered questions only 
     .check()
   await page.getByRole('button', { name: 'Check answer', exact: true }).click()
   await expect(page.getByTestId('daily-count')).toHaveText('1 / 2 checks today')
-  await page.clock.fastForward(90_000)
+  await advanceCalendar(page, 90_000)
   await expect(page.getByTestId('daily-count')).toHaveText('0 / 2 checks today')
   await expect(page.getByTestId('practice-streak')).toHaveText(
     '1-day practice streak',

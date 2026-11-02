@@ -1,3 +1,4 @@
+import { advanceCalendar } from './calendar'
 import { test, expect } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
 
@@ -7,7 +8,7 @@ const day = '2026-10-23'
 test('due reviews survive reload, advance at midnight, and recover from a miss without extra XP', async ({
   page,
 }) => {
-  await page.clock.install({ time: new Date(`${day}T23:59:00`) })
+  await page.clock.setFixedTime(new Date(`${day}T23:59:00`))
   await page.goto('/gamification')
   await page.evaluate(
     (key) =>
@@ -41,7 +42,7 @@ test('due reviews survive reload, advance at midnight, and recover from a miss w
   await expect(
     practice.getByRole('heading', { name: 'Nothing left in this focus' }),
   ).toBeVisible()
-  await page.clock.fastForward(90_000)
+  await advanceCalendar(page, 90_000)
   await expect(practice).toContainText('1 due for review')
   await expect(practice.getByRole('radio')).toHaveCount(3)
   await practice.getByRole('button', { name: 'Review due checks' }).click()
@@ -106,7 +107,7 @@ test('saved checks persist, sync between tabs, and handle an empty list', async 
 test('saved checks and review schedules remain usable when storage is blocked', async ({
   page,
 }) => {
-  await page.clock.install({ time: new Date(`${day}T12:00:00`) })
+  await page.clock.setFixedTime(new Date(`${day}T12:00:00`))
   await page.addInitScript(() => {
     Storage.prototype.getItem = () => {
       throw new Error('blocked')
@@ -150,7 +151,7 @@ for (const colorScheme of ['light', 'dark'] as const) {
     const errors: string[] = []
     page.on('pageerror', (error) => errors.push(error.message))
     await page.emulateMedia({ colorScheme, reducedMotion: 'reduce' })
-    await page.clock.install({ time: new Date(`${day}T12:00:00`) })
+    await page.clock.setFixedTime(new Date(`${day}T12:00:00`))
     await page.goto('/gamification')
     await page.evaluate(
       (key) =>

@@ -43,7 +43,7 @@ Failures retain screenshots, traces and accessibility snapshots under `test-resu
 - Each test receives fresh browser storage. Multi-tab tests intentionally share one browser context.
 - Stateful labs use fresh UUID workspaces. Article tests create unique titles against the process-local store. One worker avoids ordering/timing interference in shared demo data and measured service scenarios.
 - Browser actions exercise real loaders and server functions. Network interception is reserved for deliberate latency/failure cases; response-loss tests let the server commit before dropping the response.
-- Clock-controlled journeys use deterministic local dates. Assertions wait on visible state/URLs rather than fixed sleep delays.
+- Calendar journeys fix the local date while leaving browser scheduling real, avoiding Linux WebKit hydration stalls under full timer emulation. Rollover checks cover focus refresh and the real 30-second subscription. Assertions wait on visible state/URLs rather than fixed sleep delays.
 - Keyboard traversal uses Option+Tab on macOS WebKit, whose default Tab navigation skips links and buttons; other browsers and platforms use Tab. Focus and activation assertions remain the same.
 - Clipboard failure/success tests replace only the browser clipboard method to avoid relying on host OS permissions. They verify the submitted code/URL and user feedback, not the operating-system clipboard.
 - Tests verify the local Node deployment and in-memory models. They do not establish hosted/serverless deployment health, durable multi-instance storage, physical-device compatibility or complete accessibility conformance.

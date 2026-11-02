@@ -4,7 +4,7 @@ import { learningTopics } from '../../src/utils/learningTopics'
 
 test('challenge results open the exact check for focused recovery without changing the round score', async ({ page }) => {
   const day = '2026-10-23'
-  await page.clock.install({ time: new Date(`${day}T12:00:00`) })
+  await page.clock.setFixedTime(new Date(`${day}T12:00:00`))
   await page.goto('/gamification')
   const practice = page.getByRole('region', { name: 'Knowledge checks', exact: true })
   // A challenge recovery action must also work when the workshop has an empty filter.

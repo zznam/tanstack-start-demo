@@ -1,3 +1,4 @@
+import { advanceCalendar } from './calendar'
 import { test, expect } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
 import { dailyChallenge, practiceQuestions } from '../../src/utils/gamification'
@@ -10,7 +11,7 @@ test('daily challenge scores first attempts, explains misses, and replays withou
 }) => {
   const errors: string[] = []
   page.on('pageerror', (error) => errors.push(error.message))
-  await page.clock.install({ time: new Date(`${day}T12:00:00`) })
+  await page.clock.setFixedTime(new Date(`${day}T12:00:00`))
   await page.goto('/gamification')
   const challenge = page.getByRole('region', {
     name: 'Daily challenge',
@@ -84,7 +85,7 @@ test('daily challenge scores first attempts, explains misses, and replays withou
 test('focused practice keeps feedback visible, advances through remaining checks and handles empty queues', async ({
   page,
 }) => {
-  await page.clock.install({ time: new Date(`${day}T12:00:00`) })
+  await page.clock.setFixedTime(new Date(`${day}T12:00:00`))
   await page.goto('/gamification')
   const practice = page.getByRole('region', {
     name: 'Knowledge checks',
@@ -121,7 +122,7 @@ test('focused practice keeps feedback visible, advances through remaining checks
     practice.getByRole('heading', { name: 'Nothing left in this focus' }),
   ).toBeVisible()
   await expect(practice.getByRole('radio')).toHaveCount(0)
-  await page.clock.fastForward(24 * 60 * 60 * 1000)
+  await advanceCalendar(page, 24 * 60 * 60 * 1000)
   await expect(
     practice.getByText('6 checks remaining in this focus', { exact: true }),
   ).toBeVisible()
@@ -143,7 +144,7 @@ test('weekly missions migrate saved practice, sync goals and reset Monday while 
   page,
   context,
 }) => {
-  await page.clock.install({ time: new Date('2026-10-25T23:59:00') })
+  await page.clock.setFixedTime(new Date('2026-10-25T23:59:00'))
   await page.goto('/gamification')
   await page.evaluate(
     (key) =>
@@ -171,15 +172,16 @@ test('weekly missions migrate saved practice, sync goals and reset Monday while 
   await expect(mission).toContainText('3-day personal best')
   await expect(page.getByLabel('Daily goal', { exact: true })).toHaveValue('1')
   const other = await context.newPage()
-  await other.clock.install({ time: new Date('2026-10-25T23:59:00') })
+  await other.clock.setFixedTime(new Date('2026-10-25T23:59:00'))
   await other.goto('/gamification')
+  await expect(other.getByTestId('weekly-days')).toHaveText('4 / 3 active days')
   await other.getByLabel('Weekly goal', { exact: true }).selectOption('5')
   await expect(page.getByTestId('weekly-days')).toHaveText('4 / 5 active days')
   await expect(mission).not.toContainText('Weekly mission complete!')
   await other.close()
   await page.reload()
   await expect(page.getByLabel('Weekly goal', { exact: true })).toHaveValue('5')
-  await page.clock.fastForward(90_000)
+  await advanceCalendar(page, 90_000)
   await expect(page.getByTestId('weekly-days')).toHaveText('0 / 5 active days')
   await expect(mission).toContainText('Oct 26 – Nov 1')
   await expect(mission).toContainText('3-day personal best')
@@ -189,7 +191,8 @@ test('weekly missions migrate saved practice, sync goals and reset Monday while 
 test('challenge and weekly targets work with blocked storage and restart the round at midnight', async ({
   page,
 }) => {
-  await page.clock.install({ time: new Date(`${day}T23:59:00`) })
+  test.setTimeout(60_000)
+  await page.clock.setFixedTime(new Date(`${day}T23:59:00`))
   await page.addInitScript(() => {
     Storage.prototype.getItem = () => {
       throw new Error('blocked')
@@ -199,6 +202,7 @@ test('challenge and weekly targets work with blocked storage and restart the rou
     }
   })
   await page.goto('/gamification')
+  await expect(page.getByRole('button', { name: 'Start daily challenge' })).toBeEnabled()
   await page.getByLabel('Weekly goal', { exact: true }).selectOption('7')
   const challenge = page.getByRole('region', {
     name: 'Daily challenge',
@@ -211,10 +215,12 @@ test('challenge and weekly targets work with blocked storage and restart the rou
     .click()
   await expect(page.getByTestId('total-xp')).toHaveText('50 XP')
   await expect(page.getByTestId('weekly-days')).toHaveText('1 / 7 active days')
-  await page.clock.fastForward(90_000)
+  // Keep the real 30-second subscription running to verify timer-based rollover
+  // independently of the focus-triggered refresh used by other calendar tests.
+  await page.clock.setFixedTime(new Date('2026-10-24T00:00:30'))
   await expect(
     challenge.getByRole('button', { name: 'Start daily challenge' }),
-  ).toBeVisible()
+  ).toBeVisible({ timeout: 35_000 })
   await challenge.getByRole('button', { name: 'Start daily challenge' }).click()
   await expect(
     challenge.getByRole('heading', {
@@ -234,7 +240,7 @@ for (const colorScheme of ['light', 'dark'] as const) {
     page, browserName,
   }, testInfo) => {
     await page.emulateMedia({ colorScheme, reducedMotion: 'reduce' })
-    await page.clock.install({ time: new Date(`${day}T12:00:00`) })
+    await page.clock.setFixedTime(new Date(`${day}T12:00:00`))
     await page.goto('/gamification')
     const challenge = page.getByRole('region', {
       name: 'Daily challenge',
