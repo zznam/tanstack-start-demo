@@ -34,7 +34,14 @@ test('all foundation and pattern lessons offer completion and a continuous next-
     await expect(progress.getByRole('button', { name: 'Mark as complete', exact: true }))
       .toHaveAttribute('aria-pressed', 'false')
     await expect(progress.getByRole('link', { name: 'All learning topics', exact: true })).toHaveAttribute('href', '/#topics')
-    await progress.getByRole('link', { name: 'Next topic', exact: true }).click()
+    const next = progress.getByRole('link', { name: 'Next topic', exact: true })
+    // The URL can update before the next lesson commits its content. Verify the
+    // rendered link belongs to this lesson before continuing the sequence.
+    await expect.poll(async () => {
+      const href = await next.getAttribute('href')
+      return href ? new URL(href, page.url()).pathname : null
+    }).toBe(learningTopics[learningTopics.indexOf(topic) + 1].to)
+    await next.click()
   }
   await expect(page).toHaveURL((url) => url.pathname === '/features/caching')
   await expect(page.getByRole('region', { name: 'Lesson progress' })
