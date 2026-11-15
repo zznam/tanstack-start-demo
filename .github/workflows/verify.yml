@@ -40,7 +40,11 @@ jobs:
       - run: pnpm audit --audit-level=moderate
       - run: pnpm exec playwright install --with-deps chromium firefox webkit
       - run: pnpm check
+      - name: Check CLI-generated route tree
+        run: git diff --exit-code -- src/routeTree.gen.ts
       - run: pnpm build
+      - name: Check build-generated route tree
+        run: git diff --exit-code -- src/routeTree.gen.ts
       - run: pnpm test:e2e --project=${{ matrix.project }} --max-failures=1
       - name: Upload browser report and failure traces
         if: ${{ !cancelled() }}

@@ -95,6 +95,8 @@ The `seroval` override selects patched version 1.6.11 for every transitive copy,
 
 ## Source layout
 
+Both `pnpm generate-routes` and `pnpm build` must reproduce the committed `src/routeTree.gen.ts` byte-for-byte. The CLI configuration mirrors TanStack Start's type-registration footer; the Vite plugin supplies that footer itself, so its additional user footer is empty. CI checks the generated file after both commands. When changing routes, regenerate and commit the route tree; do not edit it by hand. A future Start upgrade that changes the footer must update the CLI configuration and regenerate the file together.
+
 - `src/routes/`: file-based routes; `src/routeTree.gen.ts` is generated.
 - `src/utils/serverFns.ts`: server RPC entry points.
 - `src/utils/postSchemas.ts`: shared form and URL validation.

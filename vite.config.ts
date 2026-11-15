@@ -13,7 +13,13 @@ const config = defineConfig({
     devtools(),
     nitro({ rollupConfig: { external: [/^@sentry\//] } }),
     tailwindcss(),
-    tanstackStart(),
+    tanstackStart({
+      router: {
+        // The CLI footer in tsr.config.json mirrors Start's generated types.
+        // Start supplies its own footer, so don't append the CLI copy again.
+        routeTreeFileFooter: [],
+      },
+    }),
     viteReact(),
   ],
 })
