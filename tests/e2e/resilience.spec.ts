@@ -76,10 +76,11 @@ test('scenario runner locks settings in flight and recovers from transport failu
   // navigation, including on touch screens after the button is enabled again.
   await run.focus()
   await run.evaluate((button) => button.scrollIntoView({ block: 'start' }))
-  await expect.poll(() => run.evaluate((button) => {
-    const header = document.querySelector('body > header')!
-    return button.getBoundingClientRect().top >= header.getBoundingClientRect().bottom
-  })).toBe(true)
+  await expect.poll(async () => {
+    const header = await page.getByRole('banner').boundingBox()
+    const button = await run.boundingBox()
+    return !!header && !!button && button.y >= header.y + header.height
+  }).toBe(true)
   await run.click()
   await expect(page.getByTestId('metric-carrier-attempts')).toHaveText('8')
 })
