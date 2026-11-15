@@ -15,6 +15,7 @@ pnpm verify
 | Area | Suites and user outcomes |
 | --- | --- |
 | Route rendering and accessibility | `showcase`: every catalog lesson, about/updates, article detail and execution-mode routes; WCAG A/AA scans, browser exceptions, overflow, dark mode, SSR and streaming |
+| Hydration readiness | `hydration`: withhold app scripts, verify native disabled controls and loading feedback, release scripts and check first input persistence and exactly one middleware RPC; verify readable lessons and navigation without JavaScript |
 | Navigation and articles | `shell-journeys`, `article-draft`, `lesson-navigation`: keyboard skip/menu navigation, URL/history filters, form validation, literal text rendering, pending draft edits, clipboard recovery, loader retry, theme synchronization |
 | Catalog and lessons | `learning`, `lesson-navigation`: validated filters, completion, next-topic sequence, persistence and temporary-save notices |
 | Rewards and practice | `gamification`, `gamification-features`, `gamification-review`, `learning-journeys`: quests, achievements, XP/undo, challenge scoring and targeted retry, keyboard interaction, focused/saved/due checks, review scheduling, goals, date rollovers and activity history |

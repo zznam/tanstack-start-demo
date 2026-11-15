@@ -5,6 +5,7 @@ import Header from '../components/Header'
 import Footer from '../components/Footer'
 import { DefaultCatchBoundary } from '../components/DefaultCatchBoundary'
 import { NotFound } from '../components/NotFound'
+import { InteractiveControls } from '../components/InteractiveControls'
 
 import appCss from '../styles.css?url'
 
@@ -55,11 +56,13 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </head>
       <body className="font-sans antialiased [overflow-wrap:anywhere] selection:bg-[rgba(79,184,178,0.24)] min-h-screen flex flex-col">
         <a href="#main-content" className="skip-link">Skip to content</a>
-        <Header />
-        <main id="main-content" tabIndex={-1} className="flex-1 min-w-0">
-          {children}
-        </main>
-        <Footer />
+        <InteractiveControls>
+          <Header />
+          <main id="main-content" tabIndex={-1} className="flex-1 min-w-0">
+            {children}
+          </main>
+          <Footer />
+        </InteractiveControls>
         {import.meta.env.DEV && <TanStackDevtools
           config={{
             position: 'bottom-right',

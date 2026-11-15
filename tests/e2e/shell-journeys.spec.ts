@@ -9,6 +9,7 @@ test('keyboard users can skip the shell and reach every topic in the menu', asyn
   await expect(page.locator('main')).toBeFocused()
 
   const toggle = page.getByRole('button', { name: 'Toggle navigation menu' })
+  await expect(toggle).toBeEnabled()
   await toggle.focus()
   await page.keyboard.press('Enter')
   await page.keyboard.press(process.platform === 'darwin' && browserName === 'webkit' ? 'Alt+Tab' : 'Tab')
