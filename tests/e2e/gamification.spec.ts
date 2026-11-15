@@ -295,6 +295,7 @@ test('knowledge checks work with keyboard selection and submission', async ({
     name: 'Only in component state',
     exact: true,
   })
+  await expect(first).toBeEnabled()
   await first.focus()
   await page.keyboard.press('ArrowDown')
   await expect(

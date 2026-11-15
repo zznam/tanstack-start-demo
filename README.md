@@ -69,6 +69,8 @@ The runnable configuration targets Node/Nitro. Hosting examples describe options
 
 ## Validation
 
+Interactive inputs and buttons stay natively disabled while the page prepares its event handlers, then enable together. A short readiness message explains the wait. This prevents pre-hydration typing, filter edits, and RPC clicks from being accepted and lost. Lessons and ordinary links remain readable and navigable without JavaScript; interactive controls explain that JavaScript is required.
+
 ```sh
 pnpm check       # regenerate routes, strict TypeScript, data regression tests
 pnpm build       # production client and SSR bundles
