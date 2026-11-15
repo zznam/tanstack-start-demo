@@ -51,7 +51,8 @@
       "lightningcss"
     ],
     "overrides": {
-      "@tailwindcss/typography>postcss-selector-parser": "7.1.6"
+      "@tailwindcss/typography>postcss-selector-parser": "7.1.6",
+      "seroval": "1.6.11"
     }
   },
   "packageManager": "pnpm@10.28.2",

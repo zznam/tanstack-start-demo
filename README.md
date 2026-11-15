@@ -91,6 +91,8 @@ The [E2E guide](tests/e2e/README.md) maps journeys to suites and explains focuse
 
 The targeted `postcss-selector-parser` override patches the parser used by Tailwind Typography. Keep it until Typography adopts a patched parser, then remove it and rerun the build and accessibility/browser checks.
 
+The `seroval` override selects patched version 1.6.11 for every transitive copy, fixing [GHSA-f86p-h4j2-7qgj](https://github.com/lxsmnsyc/seroval/security/advisories/GHSA-f86p-h4j2-7qgj). Remove it once the dependency tree resolves entirely to patched versions without the override. CI runs `pnpm audit --audit-level=moderate` before browser installation and verification.
+
 ## Source layout
 
 - `src/routes/`: file-based routes; `src/routeTree.gen.ts` is generated.

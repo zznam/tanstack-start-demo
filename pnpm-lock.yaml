@@ -6,6 +6,7 @@ settings:
 
 overrides:
   '@tailwindcss/typography>postcss-selector-parser': 7.1.6
+  seroval: 1.6.11
 
 importers:
 
@@ -1317,10 +1318,10 @@ packages:
     resolution: {integrity: sha512-zKlRcrRRgB7zeMQreqDFLn9uT/xqPWP7irZqafeN9UFmbUGdN5lQCjxw/c+ZRLm/A6fgdCbFWdj0dWqgtle77g==}
     engines: {node: '>=10'}
     peerDependencies:
-      seroval: ^1.0
+      seroval: 1.6.11
 
-  seroval@1.6.10:
-    resolution: {integrity: sha512-GKZbsOHLV6GToR1rNQc9CZ+s8HZTS5X5N9D++z/xUh4SV9UwepLzqc60pKJTEEfEHzGdtWTXHpp+GhLoGLT1UA==}
+  seroval@1.6.11:
+    resolution: {integrity: sha512-hpb6XnMCGN/A+79Uf8V7/iTGkyyyazNn5X0CoCAp7Uy9vT3RT8jZ9GLcnxGoVjg3P8AArbe4ZVHq6C8oT2a0kA==}
     engines: {node: '>=10'}
 
   shell-quote@1.12.0:
@@ -2167,8 +2168,8 @@ snapshots:
     dependencies:
       '@tanstack/history': 1.162.5
       cookie-es: 3.1.1
-      seroval: 1.6.10
-      seroval-plugins: 1.6.10(seroval@1.6.10)
+      seroval: 1.6.11
+      seroval-plugins: 1.6.10(seroval@1.6.11)
 
   '@tanstack/router-devtools-core@1.168.2(@tanstack/router-core@1.171.38)(csstype@3.2.3)':
     dependencies:
@@ -2233,7 +2234,7 @@ snapshots:
       '@tanstack/router-core': 1.171.38
       '@tanstack/start-fn-stubs': 1.162.0
       '@tanstack/start-storage-context': 1.167.40
-      seroval: 1.6.10
+      seroval: 1.6.11
 
   '@tanstack/start-fn-stubs@1.162.0': {}
 
@@ -2252,7 +2253,7 @@ snapshots:
       lightningcss: 1.33.0
       pathe: 2.0.3
       picomatch: 4.0.7
-      seroval: 1.6.10
+      seroval: 1.6.11
       source-map: 0.7.6
       srvx: 1.0.6
       tinyglobby: 0.2.17
@@ -2283,7 +2284,7 @@ snapshots:
       '@tanstack/start-storage-context': 1.167.40
       cookie-es: 3.1.1
       fetchdts: 0.2.0
-      seroval: 1.6.10
+      seroval: 1.6.11
 
   '@tanstack/start-storage-context@1.167.40':
     dependencies:
@@ -2711,19 +2712,19 @@ snapshots:
 
   semver@6.3.1: {}
 
-  seroval-plugins@1.6.10(seroval@1.6.10):
+  seroval-plugins@1.6.10(seroval@1.6.11):
     dependencies:
-      seroval: 1.6.10
+      seroval: 1.6.11
 
-  seroval@1.6.10: {}
+  seroval@1.6.11: {}
 
   shell-quote@1.12.0: {}
 
   solid-js@1.9.17:
     dependencies:
       csstype: 3.2.3
-      seroval: 1.6.10
-      seroval-plugins: 1.6.10(seroval@1.6.10)
+      seroval: 1.6.11
+      seroval-plugins: 1.6.10(seroval@1.6.11)
 
   source-map-js@1.2.2: {}
 
