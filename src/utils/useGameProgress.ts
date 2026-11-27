@@ -50,3 +50,13 @@ export function useGameProgress() {
       save((current) => ({ ...current, weeklyGoal })),
   }
 }
+
+/** Current stored value, for backups. */
+export function readGameProgressRaw() {
+  return store.getSnapshot().raw
+}
+
+/** Replaces stored progress, e.g. from a validated backup. */
+export function replaceGameProgress(raw: string) {
+  store.save(() => raw)
+}

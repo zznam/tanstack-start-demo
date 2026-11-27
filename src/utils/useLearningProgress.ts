@@ -26,3 +26,13 @@ export function useLearningProgress() {
   }
   return { completed, toggle, temporary }
 }
+
+/** Current stored value, for backups. */
+export function readLearningProgressRaw() {
+  return store.getSnapshot().raw
+}
+
+/** Replaces stored progress, e.g. from a validated backup. */
+export function replaceLearningProgress(raw: string) {
+  store.save(() => raw)
+}
