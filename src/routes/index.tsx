@@ -19,6 +19,7 @@ import {
 import { catalogSearchSchema } from '../utils/catalogSearch'
 import { useLearningProgress } from '../utils/useLearningProgress'
 import { TopicLink } from '../components/TopicLink'
+import { ProgressBackup } from '../components/ProgressBackup'
 
 export const Route = createFileRoute('/')({
   validateSearch: catalogSearchSchema,
@@ -141,6 +142,7 @@ function HomePage() {
           <Link to="/gamification" className="demo-button demo-button-secondary no-underline mt-5">
             <Sparkles className="size-4" />View XP & achievements
           </Link>
+          <ProgressBackup />
         </aside>
       </section>
 
