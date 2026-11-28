@@ -22,6 +22,7 @@ import {
 import { catalogSearchSchema } from '../utils/catalogSearch'
 import { useLearningProgress } from '../utils/useLearningProgress'
 import { TopicLink } from '../components/TopicLink'
+import { Highlight } from '../components/Highlight'
 import { isSearchShortcut } from '../utils/searchShortcut'
 import { ProgressBackup } from '../components/ProgressBackup'
 
@@ -266,14 +267,16 @@ function HomePage() {
                       {topic.minutes} min
                     </span>
                   </div>
-                  <h3 className="text-lg font-bold mb-2">{topic.title}</h3>
+                  <h3 className="text-lg font-bold mb-2">
+                    <Highlight text={topic.title} query={query} />
+                  </h3>
                   <p className="demo-muted text-sm leading-relaxed mb-4">
-                    {topic.summary}
+                    <Highlight text={topic.summary} query={query} />
                   </p>
                   <div className="flex flex-wrap gap-1.5 mt-auto">
                     {topic.tags.slice(0, 3).map((tag) => (
                       <span key={tag} className="topic-tag">
-                        {tag}
+                        <Highlight text={tag} query={query} />
                       </span>
                     ))}
                   </div>
