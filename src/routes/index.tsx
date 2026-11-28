@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
+import { useEffect, useRef } from 'react'
 import {
   ArrowRight,
   BookOpen,
@@ -21,6 +22,7 @@ import {
 import { catalogSearchSchema } from '../utils/catalogSearch'
 import { useLearningProgress } from '../utils/useLearningProgress'
 import { TopicLink } from '../components/TopicLink'
+import { isSearchShortcut } from '../utils/searchShortcut'
 import { ProgressBackup } from '../components/ProgressBackup'
 
 export const Route = createFileRoute('/')({
@@ -53,6 +55,17 @@ function HomePage() {
   const next = learningTopics.find((topic) => !completed.includes(topic.id))
   const time = learningTime(completed)
   const reset = () => navigate({ search: {}, resetScroll: false })
+  const searchInput = useRef<HTMLInputElement>(null)
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (!isSearchShortcut(event, event.target as HTMLElement | null)) return
+      event.preventDefault()
+      searchInput.current?.focus()
+      searchInput.current?.select()
+    }
+    document.addEventListener('keydown', onKeyDown)
+    return () => document.removeEventListener('keydown', onKeyDown)
+  }, [])
 
   return (
     <div className="page-wrap pb-16 pt-8 sm:pt-12">
@@ -179,10 +192,12 @@ function HomePage() {
           <div className="relative">
             <Search className="absolute left-3 top-3.5 size-4 demo-muted pointer-events-none" />
             <input
+              ref={searchInput}
               type="search"
               aria-label="Search learning topics"
+              aria-keyshortcuts="/"
               className="demo-input text-sm"
-              placeholder="Search topics, concepts, or APIs…"
+              placeholder="Search topics, concepts, or APIs…  (press /)"
               value={query}
               maxLength={120}
               onChange={(event) => void updateFilters({ q: event.target.value || undefined }, true)}
