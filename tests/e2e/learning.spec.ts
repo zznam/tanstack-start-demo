@@ -4,6 +4,19 @@ import { recentChanges } from '../../src/utils/recentChanges'
 
 const workspace = () => crypto.randomUUID()
 
+test('slash focuses the topic search without typing into it', async ({ page }) => {
+  await page.goto('/')
+  const search = page.getByRole('searchbox', { name: 'Search learning topics' })
+  await expect(search).toHaveAttribute('aria-keyshortcuts', '/')
+  await page.locator('body').click({ position: { x: 5, y: 5 } })
+  await page.keyboard.press('/')
+  await expect(search).toBeFocused()
+  await expect(search).toHaveValue('')
+  await page.keyboard.type('cache')
+  await page.keyboard.press('/')
+  await expect(search).toHaveValue('cache/')
+})
+
 test('catalog URLs preserve filters through reload, sharing and browser history', async ({ page, context }) => {
   await page.goto('/')
   await page.getByRole('searchbox', { name: 'Search learning topics' }).fill('versioning')
