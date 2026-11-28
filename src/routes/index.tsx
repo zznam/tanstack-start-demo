@@ -15,6 +15,8 @@ import {
   learningLevels,
   learningTopics,
   filterTopics,
+  formatMinutes,
+  learningTime,
 } from '../utils/learningTopics'
 import { catalogSearchSchema } from '../utils/catalogSearch'
 import { useLearningProgress } from '../utils/useLearningProgress'
@@ -49,6 +51,7 @@ function HomePage() {
   const { completed, toggle, temporary } = useLearningProgress()
   const topics = filterTopics(query, level, incompleteOnly, completed)
   const next = learningTopics.find((topic) => !completed.includes(topic.id))
+  const time = learningTime(completed)
   const reset = () => navigate({ search: {}, resetScroll: false })
 
   return (
@@ -109,6 +112,11 @@ function HomePage() {
             max={learningTopics.length}
             aria-label="Learning progress"
           />
+          <p className="text-xs demo-muted mt-2" data-testid="learning-time">
+            {time.remaining
+              ? `About ${formatMinutes(time.remaining)} of lessons left · ${formatMinutes(time.done)} done`
+              : `All ${formatMinutes(time.total)} of lessons done`}
+          </p>
           <p className="demo-muted text-xs mt-3 mb-6" role={temporary ? 'status' : undefined}>
             {temporary
               ? 'Progress is saved for this visit only. Browser storage is unavailable; reloading or closing this tab may lose your changes.'

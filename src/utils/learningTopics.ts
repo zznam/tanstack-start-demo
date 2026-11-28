@@ -210,3 +210,21 @@ export function parseProgress(raw: string): TopicId[] {
     return []
   }
 }
+
+/** Minutes of lessons completed and still to go, from each topic's estimate. */
+export function learningTime(completed: readonly TopicId[]) {
+  let done = 0
+  let remaining = 0
+  for (const topic of learningTopics) {
+    if (completed.includes(topic.id)) done += topic.minutes
+    else remaining += topic.minutes
+  }
+  return { done, remaining, total: done + remaining }
+}
+
+/** "45 min" or "1 h 05 min". */
+export function formatMinutes(minutes: number) {
+  if (minutes < 60) return `${minutes} min`
+  const hours = Math.floor(minutes / 60)
+  return `${hours} h ${String(minutes % 60).padStart(2, '0')} min`
+}

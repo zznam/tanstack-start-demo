@@ -197,3 +197,18 @@ test('parallel loading removes the waterfall and preserves partial failure resul
     2,
   )
 })
+
+test('learning time splits lesson estimates into done and remaining', async () => {
+  const { learningTime, formatMinutes } = await import('../src/utils/learningTopics.ts')
+  const total = learningTopics.reduce((sum, topic) => sum + topic.minutes, 0)
+  assert.deepEqual(learningTime([]), { done: 0, remaining: total, total })
+  const [first, second] = learningTopics
+  const partial = learningTime([first.id, second.id])
+  assert.equal(partial.done, first.minutes + second.minutes)
+  assert.equal(partial.remaining, total - partial.done)
+  assert.equal(learningTime(learningTopics.map((topic) => topic.id)).remaining, 0)
+  assert.equal(formatMinutes(0), '0 min')
+  assert.equal(formatMinutes(45), '45 min')
+  assert.equal(formatMinutes(60), '1 h 00 min')
+  assert.equal(formatMinutes(185), '3 h 05 min')
+})
